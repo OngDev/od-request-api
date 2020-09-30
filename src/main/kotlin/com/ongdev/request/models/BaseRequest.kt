@@ -1,20 +1,27 @@
 package com.ongdev.request.models
 
+import org.hibernate.annotations.GenericGenerator
 import java.io.Serializable
 import java.util.*
 import javax.persistence.*
 
 @MappedSuperclass
-abstract class BaseRequest : Serializable {
-    @Id
-    @GeneratedValue
-    private var id: Long? = null
-    private lateinit var title: String
-    private lateinit var description: String
-    private var createdDate: Date? = null
-    private var isActive: Boolean = false
-    private var isArchived: Boolean = false
-    private var archivedDate: Date? = null
-    @OneToMany(cascade = [CascadeType.ALL])
-    private var votes: MutableList<Vote> = mutableListOf()
-}
+abstract class BaseRequest(
+        @Id
+        @GeneratedValue(generator = "uuid2")
+        @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
+        @Column(name = "id", columnDefinition = "VARCHAR(32)")
+        var id: UUID? = null,
+        @Column(nullable = false)
+        var title: String = "",
+        @Column(nullable = false)
+        var description: String = "",
+        var createdDate: Date? = null,
+        var isActive: Boolean = false,
+        var isArchived: Boolean = false,
+        var archivedDate: Date? = null,
+        @Column(nullable = false)
+        var email: String? = null,
+        @OneToMany(cascade = [CascadeType.ALL])
+        var votes: MutableList<Vote> = mutableListOf()
+) : Serializable
