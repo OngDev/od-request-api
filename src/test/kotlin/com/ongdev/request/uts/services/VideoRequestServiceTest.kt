@@ -1,4 +1,4 @@
-package com.ongdev.request.services
+package com.ongdev.request.uts.services
 
 import com.ongdev.request.exceptions.VideoRequestCreationException
 import com.ongdev.request.exceptions.VideoRequestDeleteFailedException
@@ -8,9 +8,9 @@ import com.ongdev.request.models.VideoRequest
 import com.ongdev.request.models.dtos.VideoRequestTO
 import com.ongdev.request.models.mappers.toVideoRequest
 import com.ongdev.request.repositories.VideoRequestRepository
+import com.ongdev.request.services.VideoRequestService
 import com.ongdev.request.services.impls.VideoRequestServiceImpl
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
