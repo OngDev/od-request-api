@@ -38,7 +38,7 @@ internal class VideoRequestServiceTest {
     }
 
     @Test
-    fun createVideoRequest_shouldReturnCreatedVideoRequestTO() {
+    fun `Create video request, should return correct videoRequestTO`() {
         Mockito.`when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenReturn(mockVideoRequest)
 
         val result = videoRequestService.createVideoRequest(mockVideoRequestTO)
@@ -47,14 +47,14 @@ internal class VideoRequestServiceTest {
     }
 
     @Test
-    fun createVideoRequest_shouldThrowErrorWhenVideoRequestTOIsNull() {
+    fun `Create video request, should throw error when videoRequestTo is null`() {
         Mockito.`when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenThrow()
 
         assertThrows<VideoRequestCreationException> { videoRequestService.createVideoRequest(mockVideoRequestTO) }
     }
 
     @Test
-    fun editVideoRequest_shouldReturnCorrectUpdatedVideoRequest() {
+    fun `Edit video request, should return updated videoRequestTo`() {
         Mockito.`when`(videoRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalVideoRequest)
         Mockito.`when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenReturn(mockVideoRequest)
 
@@ -64,14 +64,14 @@ internal class VideoRequestServiceTest {
     }
 
     @Test
-    fun editVideoRequest_shouldThrowWhenFailedToFindEntity() {
+    fun `Edit video request, should throw error when failed to find entity`() {
         Mockito.`when`(videoRequestRepository.findById(any(UUID::class.java))).thenThrow()
 
         assertThrows<VideoRequestNotFoundException> { videoRequestService.editVideoRequest(mockVideoRequestTO, anyString()) }
     }
 
     @Test
-    fun editVideoRequest_shouldThrowWhenFailedToSaveEntity() {
+    fun `Edit video request, should throw error when failed to save entity`() {
         Mockito.`when`(videoRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalVideoRequest)
         Mockito.`when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenThrow()
 
@@ -79,7 +79,7 @@ internal class VideoRequestServiceTest {
     }
 
     @Test
-    fun deleteVideoRequest_shouldReturnTrue() {
+    fun `Delete video request, should return true`() {
         Mockito.doNothing().`when`(videoRequestRepository.deleteById(any(UUID::class.java)))
 
         val result = videoRequestService.deleteVideoRequest(anyString())
@@ -87,14 +87,14 @@ internal class VideoRequestServiceTest {
     }
 
     @Test
-    fun deleteVideoRequest_shouldThrowNotFoundException() {
+    fun `Delete video request, should throw not found exception`() {
         Mockito.doThrow(VideoRequestNotFoundException::class.java).`when`(videoRequestRepository.deleteById(any(UUID::class.java)))
 
         assertThrows<VideoRequestNotFoundException> { videoRequestService.deleteVideoRequest(anyString()) }
     }
 
     @Test
-    fun deleteVideoRequest_shouldReturnFalseWhenCannotDelete() {
+    fun `Delete video request, should return false when cannot delete`() {
         Mockito.doThrow(VideoRequestDeleteFailedException::class.java).`when`(videoRequestRepository.deleteById(any(UUID::class.java)))
 
         val result = videoRequestService.deleteVideoRequest(anyString())
@@ -102,7 +102,7 @@ internal class VideoRequestServiceTest {
     }
 
     @Test
-    fun changeActivation_shouldReturnTrue() {
+    fun `Change activation, should return true`() {
         Mockito.`when`(videoRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalVideoRequest)
         Mockito.`when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenReturn(mockVideoRequest)
 
@@ -111,14 +111,14 @@ internal class VideoRequestServiceTest {
     }
 
     @Test
-    fun changeActivation_shouldThrowNotFoundException() {
+    fun `Change activation, should throw not found exception`() {
         Mockito.`when`(videoRequestRepository.findById(any(UUID::class.java))).thenThrow()
 
         assertThrows<VideoRequestNotFoundException> { videoRequestService.changeActivation(anyString()) }
     }
 
     @Test
-    fun changeActivation_shouldReturnFalse() {
+    fun `Change activation, should return false when cannot save`() {
         Mockito.`when`(videoRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalVideoRequest)
         Mockito.`when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenThrow()
 
