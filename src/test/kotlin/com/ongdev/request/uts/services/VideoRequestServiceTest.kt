@@ -14,9 +14,12 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.anyString
+import org.mockito.ArgumentMatchers.*
 import org.mockito.Mockito
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import java.util.*
 
 internal class VideoRequestServiceTest {
@@ -38,6 +41,20 @@ internal class VideoRequestServiceTest {
     }
 
     @Test
+    fun `Get video requests, should return pagination list`() {
+        val mockRequestPage = PageImpl<VideoRequest>(listOf(mockVideoRequest))
+        Mockito.`when`(videoRequestRepository.findAll(any(Pageable::class.java))).thenReturn(mockRequestPage)
+
+        val videoRequestTO = mockVideoRequestTO
+        videoRequestTO.id = mockVideoRequest.id.toString()
+        val mockRequestTOPage = PageImpl<VideoRequestTO>(listOf(videoRequestTO))
+        val resultPage = videoRequestService.getVideoRequests(PageRequest.of(1,1))
+
+        assertThat(resultPage.size).isEqualTo(mockRequestTOPage.size)
+        assertThat(resultPage.get().findFirst().get().id).isEqualTo(mockRequestTOPage.get().findFirst().get().id)
+    }
+
+    @Test
     fun `Create video request, should return correct videoRequestTO`() {
         Mockito.`when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenReturn(mockVideoRequest)
 
@@ -48,7 +65,7 @@ internal class VideoRequestServiceTest {
 
     @Test
     fun `Create video request, should throw error when videoRequestTo is null`() {
-        Mockito.`when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenThrow()
+        Mockito.`when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenThrow(VideoRequestCreationException())
 
         assertThrows<VideoRequestCreationException> { videoRequestService.createVideoRequest(mockVideoRequestTO) }
     }
@@ -65,7 +82,7 @@ internal class VideoRequestServiceTest {
 
     @Test
     fun `Edit video request, should throw error when failed to find entity`() {
-        Mockito.`when`(videoRequestRepository.findById(any(UUID::class.java))).thenThrow()
+        Mockito.`when`(videoRequestRepository.findById(any(UUID::class.java))).thenThrow(VideoRequestNotFoundException())
 
         assertThrows<VideoRequestNotFoundException> { videoRequestService.editVideoRequest(mockVideoRequestTO, anyString()) }
     }
@@ -73,7 +90,7 @@ internal class VideoRequestServiceTest {
     @Test
     fun `Edit video request, should throw error when failed to save entity`() {
         Mockito.`when`(videoRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalVideoRequest)
-        Mockito.`when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenThrow()
+        Mockito.`when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenThrow(VideoRequestNotFoundException())
 
         assertThrows<VideoRequestUpdateFailedException> { videoRequestService.editVideoRequest(mockVideoRequestTO, anyString()) }
     }
@@ -112,7 +129,7 @@ internal class VideoRequestServiceTest {
 
     @Test
     fun `Change activation, should throw not found exception`() {
-        Mockito.`when`(videoRequestRepository.findById(any(UUID::class.java))).thenThrow()
+        Mockito.`when`(videoRequestRepository.findById(any(UUID::class.java))).thenThrow(VideoRequestNotFoundException())
 
         assertThrows<VideoRequestNotFoundException> { videoRequestService.changeActivation(anyString()) }
     }
@@ -120,7 +137,7 @@ internal class VideoRequestServiceTest {
     @Test
     fun `Change activation, should return false when cannot save`() {
         Mockito.`when`(videoRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalVideoRequest)
-        Mockito.`when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenThrow()
+        Mockito.`when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenThrow(VideoRequestUpdateFailedException())
 
         val result = videoRequestService.changeActivation(anyString())
         assertThat(result).isFalse()
