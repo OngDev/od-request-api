@@ -12,10 +12,13 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import java.util.*
 
@@ -32,15 +35,14 @@ class VideoRequestControllerTest(@Autowired val mockMvc: MockMvc) {
                 "Test description"
         )
         val mockVideoRequestTOPage = PageImpl<VideoRequestTO>(listOf(mockVideoRequestTO))
-        Mockito.`when`(videoRequestService.getVideoRequests(PageRequest.of(0,10))).thenReturn(mockVideoRequestTOPage)
+        Mockito.`when`(videoRequestService.getVideoRequests(PageRequest.of(0,10, Sort.Direction.DESC, "title"))).thenReturn(mockVideoRequestTOPage)
 
-        mockMvc.perform(get("/api/videos")
-                .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/videos")
+                .accept(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("\$.[0].id").value(mockVideoRequestTO.id!!))
-                .andExpect(jsonPath("\$.[0].title").value(mockVideoRequestTO.title))
-                .andExpect(jsonPath("\$.[0].description").value(mockVideoRequestTO.description))
+                .andExpect(jsonPath("content.[0].id").value(mockVideoRequestTO.id!!))
+                .andExpect(jsonPath("content.[0].title").value(mockVideoRequestTO.title))
+                .andExpect(jsonPath("content.[0].description").value(mockVideoRequestTO.description))
     }
 
     @Test
