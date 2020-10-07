@@ -4,22 +4,21 @@ import com.ongdev.request.models.dtos.VideoRequestTO
 import com.ongdev.request.services.VideoRequestService
 import com.ongdev.request.utils.JsonUtil.Companion.asJsonString
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.any
+import com.nhaarman.mockitokotlin2.any
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers.*
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers.print
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.*
 
 @WebMvcTest
@@ -53,13 +52,14 @@ class VideoRequestControllerTest(@Autowired val mockMvc: MockMvc) {
                 "Test description"
         )
         Mockito.`when`(videoRequestService.createVideoRequest(
-                VideoRequestTO(null, "Test title", "Test description")))
+                any()))
                 .thenReturn(mockVideoRequestTO)
-        mockMvc.perform(post("/api/videos")
+        mockMvc.perform(post("/videos").accept(MediaType.APPLICATION_JSON_VALUE)
                 .content(asJsonString(VideoRequestTO(null, "Test title", "Test description")))
-                .accept(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .characterEncoding("utf-8"))
                 .andExpect(status().isOk)
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
                 .andExpect(jsonPath("\$.id").value(mockVideoRequestTO.id!!))
                 .andExpect(jsonPath("\$.title").value(mockVideoRequestTO.title))
                 .andExpect(jsonPath("\$.description").value(mockVideoRequestTO.description))

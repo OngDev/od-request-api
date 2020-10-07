@@ -10,7 +10,7 @@ abstract class BaseRequest(
         @Id
         @GeneratedValue(generator = "uuid2")
         @GenericGenerator(name = "uuid2", strategy = "org.hibernate.id.UUIDGenerator")
-        @Column(name = "id", columnDefinition = "VARCHAR(32)")
+        @Column(name = "id")
         var id: UUID? = null,
         @Column(nullable = false)
         var title: String = "",

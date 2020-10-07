@@ -10,12 +10,10 @@ import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/videos", produces = [MediaType.APPLICATION_JSON_VALUE] )
+@RequestMapping("/videos")
 class VideoRequestController(private val videoRequestService: VideoRequestService) {
     @GetMapping
     fun getVideoRequests(
@@ -26,5 +24,10 @@ class VideoRequestController(private val videoRequestService: VideoRequestServic
                     sort = ["title"]) pageable: Pageable)
             : ResponseEntity<Page<VideoRequestTO>>{
         return ResponseEntity(videoRequestService.getVideoRequests(pageable), HttpStatus.OK)
+    }
+
+    @PostMapping
+    fun createVideoRequest(@RequestBody(required = true) videoRequestTO: VideoRequestTO) : ResponseEntity<VideoRequestTO> {
+        return ResponseEntity(videoRequestService.createVideoRequest(videoRequestTO), HttpStatus.OK)
     }
 }
