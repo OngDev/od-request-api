@@ -1,5 +1,7 @@
 package com.ongdev.request.exceptions
 
-class VideoRequestUpdateFailedException : Throwable() {
+import java.lang.RuntimeException
+
+class VideoRequestUpdateFailedException(ex: Exception) : RuntimeException(ex) {
 
 }

@@ -13,10 +13,22 @@ fun VideoRequestTO.toVideoRequest() : VideoRequest {
     return videoRequest
 }
 
+fun VideoRequestTO.toVideoRequest(videoRequest: VideoRequest) : VideoRequest{
+    videoRequest.title = title
+    videoRequest.description = description
+    return videoRequest
+}
+
 fun VideoRequest.toVideoRequestTO() = VideoRequestTO(
         id.toString(),
         title,
-        description
+        description,
+        isActive,
+        isArchived,
+        email,
+        votes = votes.map {
+            vote -> vote.toVoteTO()
+        }
 //TODO: Add more information
 )
 

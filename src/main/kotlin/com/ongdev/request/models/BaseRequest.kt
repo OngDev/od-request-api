@@ -21,7 +21,7 @@ abstract class BaseRequest(
         var isArchived: Boolean = false,
         var archivedDate: Date? = null,
         @Column(nullable = false)
-        var email: String? = null,
+        var email: String = "",
         @OneToMany(cascade = [CascadeType.ALL])
         var votes: MutableList<Vote> = mutableListOf()
 ) : Serializable

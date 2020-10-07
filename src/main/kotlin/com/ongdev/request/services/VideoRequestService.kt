@@ -8,6 +8,6 @@ interface VideoRequestService {
     fun getVideoRequests(pageable: Pageable) : Page<VideoRequestTO>
     fun createVideoRequest(videoRequestTO: VideoRequestTO) : VideoRequestTO
     fun editVideoRequest(videoRequestTO: VideoRequestTO, requestId: String): VideoRequestTO
-    fun deleteVideoRequest(requestId: String): Boolean
-    fun changeActivation(requestId: String): Boolean
+    fun deleteVideoRequest(requestId: String)
+    fun changeActivation(requestId: String): VideoRequestTO
 }

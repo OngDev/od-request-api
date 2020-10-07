@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
@@ -31,7 +32,7 @@ class VideoRequestControllerTest(@Autowired val mockMvc: MockMvc) {
                 "Test description"
         )
         val mockVideoRequestTOPage = PageImpl<VideoRequestTO>(listOf(mockVideoRequestTO))
-        Mockito.`when`(videoRequestService.getVideoRequests(any(Pageable::class.java))).thenReturn(mockVideoRequestTOPage)
+        Mockito.`when`(videoRequestService.getVideoRequests(PageRequest.of(0,10))).thenReturn(mockVideoRequestTOPage)
 
         mockMvc.perform(get("/api/videos")
                 .accept(MediaType.APPLICATION_JSON))
@@ -50,7 +51,7 @@ class VideoRequestControllerTest(@Autowired val mockMvc: MockMvc) {
                 "Test description"
         )
         Mockito.`when`(videoRequestService.createVideoRequest(
-                any(VideoRequestTO::class.java)))
+                VideoRequestTO(null, "Test title", "Test description")))
                 .thenReturn(mockVideoRequestTO)
         mockMvc.perform(post("/api/videos")
                 .content(asJsonString(VideoRequestTO(null, "Test title", "Test description")))

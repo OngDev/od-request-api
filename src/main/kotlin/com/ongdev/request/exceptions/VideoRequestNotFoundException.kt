@@ -1,5 +1,7 @@
 package com.ongdev.request.exceptions
 
-class VideoRequestNotFoundException : Throwable() {
+import java.lang.RuntimeException
+
+class VideoRequestNotFoundException : RuntimeException() {
 
 }
