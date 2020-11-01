@@ -1,13 +1,11 @@
 package com.ongdev.request.uts.controllers
 
-import com.ongdev.request.models.dtos.VideoRequestTO
-import com.ongdev.request.services.VideoRequestService
+import com.ongdev.request.models.dtos.QARequestTO
+import com.ongdev.request.services.QARequestService
 import com.ongdev.request.utils.JsonUtil.Companion.asJsonString
 import org.junit.jupiter.api.Test
 import com.nhaarman.mockitokotlin2.any
 import com.ongdev.request.controllers.QARequestController
-import com.ongdev.request.controllers.VideoRequestController
-import com.ongdev.request.services.QARequestService
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -27,48 +25,48 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.*
 
 @AutoConfigureMockMvc
-@ContextConfiguration(classes = [VideoRequestController::class, VideoRequestService::class])
+@ContextConfiguration(classes = [QARequestController::class, QARequestService::class])
 @WebMvcTest
-class VideoRequestControllerTest(@Autowired val mockMvc: MockMvc) {
+class QARequestControllerTest(@Autowired val mockMvc: MockMvc) {
     @MockBean
-    private lateinit var videoRequestService: VideoRequestService
+    private lateinit var qaRequestService: QARequestService
 
     @Test
     fun `Get video requests, should return correct response entity`() {
-        val mockVideoRequestTO = VideoRequestTO(
+        val mockQARequestTO = QARequestTO(
                 UUID.randomUUID().toString(),
                 "Test title",
                 "Test description"
         )
-        val mockVideoRequestTOPage = PageImpl<VideoRequestTO>(listOf(mockVideoRequestTO))
-        Mockito.`when`(videoRequestService.getRequests(any())).thenReturn(mockVideoRequestTOPage)
+        val mockQARequestTOPage = PageImpl<QARequestTO>(listOf(mockQARequestTO))
+        Mockito.`when`(qaRequestService.getRequests(any())).thenReturn(mockQARequestTOPage)
 
-        mockMvc.perform(get("/videos")
+        mockMvc.perform(get("/qna")
                 .accept(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isOk)
-                .andExpect(jsonPath("content.[0].id").value(mockVideoRequestTO.id!!))
-                .andExpect(jsonPath("content.[0].title").value(mockVideoRequestTO.title))
-                .andExpect(jsonPath("content.[0].description").value(mockVideoRequestTO.description))
+                .andExpect(jsonPath("content.[0].id").value(mockQARequestTO.id!!))
+                .andExpect(jsonPath("content.[0].title").value(mockQARequestTO.title))
+                .andExpect(jsonPath("content.[0].description").value(mockQARequestTO.description))
     }
 
     @Test
     fun `Create video request, should return created video request`() {
-        val mockVideoRequestTO = VideoRequestTO(
+        val mockQARequestTO = QARequestTO(
                 UUID.randomUUID().toString(),
                 "Test title",
                 "Test description"
         )
-        Mockito.`when`(videoRequestService.createRequest(
+        Mockito.`when`(qaRequestService.createRequest(
                 any()))
-                .thenReturn(mockVideoRequestTO)
-        mockMvc.perform(post("/videos").accept(MediaType.APPLICATION_JSON_VALUE)
-                .content(asJsonString(VideoRequestTO(null, "Test title", "Test description")))
+                .thenReturn(mockQARequestTO)
+        mockMvc.perform(post("/qna").accept(MediaType.APPLICATION_JSON_VALUE)
+                .content(asJsonString(QARequestTO(null, "Test title", "Test description")))
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .characterEncoding("utf-8"))
                 .andExpect(status().isOk)
                 .andDo(print())
-                .andExpect(jsonPath("\$.id").value(mockVideoRequestTO.id!!))
-                .andExpect(jsonPath("\$.title").value(mockVideoRequestTO.title))
-                .andExpect(jsonPath("\$.description").value(mockVideoRequestTO.description))
+                .andExpect(jsonPath("\$.id").value(mockQARequestTO.id!!))
+                .andExpect(jsonPath("\$.title").value(mockQARequestTO.title))
+                .andExpect(jsonPath("\$.description").value(mockQARequestTO.description))
     }
 }

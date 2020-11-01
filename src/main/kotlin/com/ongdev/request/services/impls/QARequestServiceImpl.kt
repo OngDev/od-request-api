@@ -13,8 +13,10 @@ import com.ongdev.request.repositories.QARequestRepository
 import com.ongdev.request.services.QARequestService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.stereotype.Service
 import java.util.*
 
+@Service
 class QARequestServiceImpl(private val qaRequestRepository: QARequestRepository) : QARequestService {
     override fun getRequestById(requestId: String): QARequest = qaRequestRepository
             .findById(UUID.fromString(requestId))

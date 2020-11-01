@@ -13,8 +13,10 @@ import com.ongdev.request.repositories.UdemyRequestRepository
 import com.ongdev.request.services.UdemyRequestService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.stereotype.Service
 import java.util.*
 
+@Service
 class UdemyRequestServiceImpl(private val udemyRequestRepository: UdemyRequestRepository) : UdemyRequestService {
     override fun getRequestById(requestId: String): UdemyRequest = udemyRequestRepository
             .findById(UUID.fromString(requestId))
