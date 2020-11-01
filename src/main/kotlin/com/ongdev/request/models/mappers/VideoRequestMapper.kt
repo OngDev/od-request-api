@@ -10,6 +10,11 @@ fun VideoRequestTO.toVideoRequest() : VideoRequest {
     if(id != null) videoRequest.id = UUID.fromString(id)
     videoRequest.title = title
     videoRequest.description = description
+    videoRequest.isActive = isActive
+    videoRequest.isArchived = isArchived
+    videoRequest.email = email
+    videoRequest.votes = if (votes != null) (votes!!.map { vote -> vote.toVote()
+    }).toMutableList() else mutableListOf()
     return videoRequest
 }
 
@@ -29,7 +34,6 @@ fun VideoRequest.toVideoRequestTO() = VideoRequestTO(
         votes = votes.map {
             vote -> vote.toVoteTO()
         }
-//TODO: Add more information
 )
 
 fun Page<VideoRequest>.toVideoRequestTOPage() : Page<VideoRequestTO>

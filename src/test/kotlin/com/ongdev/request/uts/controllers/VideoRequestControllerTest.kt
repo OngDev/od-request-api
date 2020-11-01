@@ -34,7 +34,7 @@ class VideoRequestControllerTest(@Autowired val mockMvc: MockMvc) {
                 "Test description"
         )
         val mockVideoRequestTOPage = PageImpl<VideoRequestTO>(listOf(mockVideoRequestTO))
-        Mockito.`when`(videoRequestService.getVideoRequests(PageRequest.of(0,10, Sort.Direction.DESC, "title"))).thenReturn(mockVideoRequestTOPage)
+        Mockito.`when`(videoRequestService.getRequests(any())).thenReturn(mockVideoRequestTOPage)
 
         mockMvc.perform(get("/videos")
                 .accept(MediaType.APPLICATION_JSON_VALUE))
@@ -51,7 +51,7 @@ class VideoRequestControllerTest(@Autowired val mockMvc: MockMvc) {
                 "Test title",
                 "Test description"
         )
-        Mockito.`when`(videoRequestService.createVideoRequest(
+        Mockito.`when`(videoRequestService.createRequest(
                 any()))
                 .thenReturn(mockVideoRequestTO)
         mockMvc.perform(post("/videos").accept(MediaType.APPLICATION_JSON_VALUE)

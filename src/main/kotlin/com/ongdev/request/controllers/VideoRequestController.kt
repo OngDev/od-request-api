@@ -23,11 +23,39 @@ class VideoRequestController(private val videoRequestService: VideoRequestServic
                     direction = Sort.Direction.DESC,
                     sort = ["title"]) pageable: Pageable)
             : ResponseEntity<Page<VideoRequestTO>>{
-        return ResponseEntity(videoRequestService.getVideoRequests(pageable), HttpStatus.OK)
+        return ResponseEntity(videoRequestService.getRequests(pageable), HttpStatus.OK)
     }
 
     @PostMapping
     fun createVideoRequest(@RequestBody(required = true) videoRequestTO: VideoRequestTO) : ResponseEntity<VideoRequestTO> {
-        return ResponseEntity(videoRequestService.createVideoRequest(videoRequestTO), HttpStatus.OK)
+        return ResponseEntity(videoRequestService.createRequest(videoRequestTO), HttpStatus.OK)
+    }
+
+    @PutMapping("{id}")
+    fun editVideoRequest(
+            @PathVariable id: String,
+            @RequestBody(required = true) videoRequestTO: VideoRequestTO) : ResponseEntity<VideoRequestTO> {
+        return ResponseEntity(videoRequestService.editRequest(videoRequestTO, id), HttpStatus.OK)
+    }
+
+    @DeleteMapping("{id}")
+    fun deleteVideoRequest(
+            @PathVariable id: String
+    ) : ResponseEntity<Any> {
+        return ResponseEntity(videoRequestService.deleteRequest(id), HttpStatus.OK)
+    }
+
+    @GetMapping("{id}/changeActivation")
+    fun changeActivation(
+            @PathVariable id: String
+    ) : ResponseEntity<VideoRequestTO> {
+        return ResponseEntity(videoRequestService.changeActivation(id), HttpStatus.OK)
+    }
+
+    @GetMapping("{id}/archive")
+    fun archiveVideoRequest(
+            @PathVariable id: String
+    ) : ResponseEntity<Any> {
+        return ResponseEntity(videoRequestService.archive(id), HttpStatus.OK)
     }
 }
