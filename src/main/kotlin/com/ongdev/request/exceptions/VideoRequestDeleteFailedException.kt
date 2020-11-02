@@ -1,5 +1,5 @@
 package com.ongdev.request.exceptions
 
-class VideoRequestDeleteFailedException : Throwable() {
+import java.lang.RuntimeException
 
-}
+class VideoRequestDeleteFailedException(ex: Exception) : RuntimeException(ex)

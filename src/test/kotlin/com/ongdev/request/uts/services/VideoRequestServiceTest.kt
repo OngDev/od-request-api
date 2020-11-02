@@ -15,10 +15,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows
-import org.mockito.ArgumentMatchers.*
-import org.mockito.Mockito
 import org.mockito.Mockito.*
-import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
@@ -32,14 +29,16 @@ internal class VideoRequestServiceTest {
     private lateinit var mockVideoRequestTO: VideoRequestTO
     private lateinit var mockOptionalVideoRequest: Optional<VideoRequest>
     private lateinit var mockVideoRequest: VideoRequest
+    private lateinit var testEmail: String
 
     @BeforeEach
     internal fun setUp() {
-        mockVideoRequestTO = VideoRequestTO(id = null, title = "Test title", description = "Test description")
+        mockVideoRequestTO = VideoRequestTO(id = null, title = "Test title", description = "Test description", email = "test@ongdev.com")
 
         mockVideoRequest = mockVideoRequestTO.toVideoRequest()
         mockVideoRequest.id = UUID.randomUUID()
         mockOptionalVideoRequest = Optional.of(mockVideoRequest)
+        testEmail = "test@ongdev.com"
     }
 
     @Test
@@ -77,7 +76,7 @@ internal class VideoRequestServiceTest {
         `when`(videoRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalVideoRequest)
         `when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenReturn(mockVideoRequest)
 
-        val result = videoRequestService.editRequest(mockVideoRequestTO, UUID.randomUUID().toString())
+        val result = videoRequestService.editRequest(mockVideoRequestTO, UUID.randomUUID().toString(), testEmail)
 
         assertThat(result.id).isEqualTo(mockVideoRequest.id.toString())
     }
@@ -86,7 +85,7 @@ internal class VideoRequestServiceTest {
     fun `Edit video request, should throw error when failed to find entity`() {
         `when`(videoRequestRepository.findById(any(UUID::class.java))).thenThrow(VideoRequestNotFoundException())
 
-        assertThrows<VideoRequestNotFoundException> { videoRequestService.editRequest(mockVideoRequestTO, UUID.randomUUID().toString()) }
+        assertThrows<VideoRequestNotFoundException> { videoRequestService.editRequest(mockVideoRequestTO, UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
@@ -94,24 +93,25 @@ internal class VideoRequestServiceTest {
         `when`(videoRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalVideoRequest)
         `when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenThrow(IllegalArgumentException())
 
-        assertThrows<VideoRequestUpdateFailedException> { videoRequestService.editRequest(mockVideoRequestTO, UUID.randomUUID().toString()) }
+        assertThrows<VideoRequestUpdateFailedException> { videoRequestService.editRequest(mockVideoRequestTO, UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
     fun `Delete video request, should return true`() {
-        `when`(videoRequestRepository.deleteById(any(UUID::class.java))).then {
+        `when`(videoRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalVideoRequest)
+        `when`(videoRequestRepository.delete(any(VideoRequest::class.java))).then {
             // Do nothing
         }
 
-        videoRequestService.deleteRequest(UUID.randomUUID().toString())
-        assertDoesNotThrow { VideoRequestDeleteFailedException() }
+        assertDoesNotThrow { videoRequestService.deleteRequest(UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
     fun `Delete video request, should return false when cannot delete`() {
-        `when`(videoRequestRepository.deleteById(any(UUID::class.java))).thenThrow(IllegalArgumentException::class.java)
+        `when`(videoRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalVideoRequest)
+        `when`(videoRequestRepository.delete(any(VideoRequest::class.java))).thenThrow(IllegalArgumentException())
 
-        assertThrows<VideoRequestDeleteFailedException> { videoRequestService.deleteRequest("Test") }
+        assertThrows<VideoRequestDeleteFailedException> { videoRequestService.deleteRequest(UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
@@ -119,7 +119,7 @@ internal class VideoRequestServiceTest {
         `when`(videoRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalVideoRequest)
         `when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenReturn(mockVideoRequest)
 
-        val result = videoRequestService.changeActivation(UUID.randomUUID().toString())
+        val result = videoRequestService.changeActivation(UUID.randomUUID().toString(), testEmail)
         assertThat(result.id).isEqualTo(mockVideoRequest.id.toString())
     }
 
@@ -127,7 +127,7 @@ internal class VideoRequestServiceTest {
     fun `Change activation, should throw not found exception`() {
         `when`(videoRequestRepository.findById(any(UUID::class.java))).thenThrow(VideoRequestNotFoundException())
 
-        assertThrows<VideoRequestNotFoundException> { videoRequestService.changeActivation(UUID.randomUUID().toString()) }
+        assertThrows<VideoRequestNotFoundException> { videoRequestService.changeActivation(UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
@@ -135,7 +135,7 @@ internal class VideoRequestServiceTest {
         `when`(videoRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalVideoRequest)
         `when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenThrow(IllegalArgumentException())
 
-        assertThrows<VideoRequestUpdateFailedException> { videoRequestService.changeActivation(UUID.randomUUID().toString()) }
+        assertThrows<VideoRequestUpdateFailedException> { videoRequestService.changeActivation(UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test

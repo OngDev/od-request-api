@@ -4,5 +4,6 @@ import com.ongdev.request.models.QARequest
 import com.ongdev.request.models.dtos.QARequestTO
 
 interface QARequestService : RequestService<QARequestTO> {
-    fun getRequestById(requestId: String) : QARequest
+    fun findByIdEditableRequestByUser(requestId: String, email: String) : QARequest
+    fun findById(requestId: String): QARequest
 }

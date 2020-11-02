@@ -4,5 +4,6 @@ import com.ongdev.request.models.UdemyRequest
 import com.ongdev.request.models.dtos.UdemyRequestTO
 
 interface UdemyRequestService : RequestService<UdemyRequestTO> {
-    fun getRequestById(requestId: String) : UdemyRequest
+    fun findByIdEditableRequestByUser(requestId: String, email: String) : UdemyRequest
+    fun findById(requestId: String): UdemyRequest
 }

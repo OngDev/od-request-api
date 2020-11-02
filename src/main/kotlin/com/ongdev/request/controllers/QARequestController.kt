@@ -9,6 +9,7 @@ import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import java.security.Principal
 
 @RestController
 @RequestMapping("/qna")
@@ -32,22 +33,25 @@ class QARequestController(private val qaRequestService: QARequestService) {
     @PutMapping("{id}")
     fun editQARequest(
             @PathVariable id: String,
-            @RequestBody(required = true) qaRequestTO: QARequestTO) : ResponseEntity<QARequestTO> {
-        return ResponseEntity(qaRequestService.editRequest(qaRequestTO, id), HttpStatus.OK)
+            @RequestBody(required = true) qaRequestTO: QARequestTO,
+            principal: Principal) : ResponseEntity<QARequestTO> {
+        return ResponseEntity(qaRequestService.editRequest(qaRequestTO, id, principal.name), HttpStatus.OK)
     }
 
     @DeleteMapping("{id}")
     fun deleteQARequest(
-            @PathVariable id: String
+            @PathVariable id: String,
+            principal: Principal
     ) : ResponseEntity<Any> {
-        return ResponseEntity(qaRequestService.deleteRequest(id), HttpStatus.OK)
+        return ResponseEntity(qaRequestService.deleteRequest(id, principal.name), HttpStatus.OK)
     }
 
     @GetMapping("{id}/changeActivation")
     fun changeActivation(
-            @PathVariable id: String
+            @PathVariable id: String,
+            principal: Principal
     ) : ResponseEntity<QARequestTO> {
-        return ResponseEntity(qaRequestService.changeActivation(id), HttpStatus.OK)
+        return ResponseEntity(qaRequestService.changeActivation(id, principal.name), HttpStatus.OK)
     }
 
     @GetMapping("{id}/archive")

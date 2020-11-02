@@ -18,7 +18,15 @@ import java.util.*
 
 @Service
 class UdemyRequestServiceImpl(private val udemyRequestRepository: UdemyRequestRepository) : UdemyRequestService {
-    override fun getRequestById(requestId: String): UdemyRequest = udemyRequestRepository
+    override fun findByIdEditableRequestByUser(requestId: String, email: String): UdemyRequest {
+        val request = findById(requestId)
+        if(request.email != email){
+            throw UdemyRequestUpdateFailedException("This is not your request, dont try to trick me :D")
+        }
+        return request
+    }
+
+    override fun findById(requestId: String): UdemyRequest = udemyRequestRepository
             .findById(UUID.fromString(requestId))
             .orElseThrow { UdemyRequestNotFoundException() }
 
@@ -35,49 +43,51 @@ class UdemyRequestServiceImpl(private val udemyRequestRepository: UdemyRequestRe
         }
     }
 
-    override fun editRequest(requestTO: UdemyRequestTO, requestId: String): UdemyRequestTO {
-        var request = getRequestById(requestId)
+    override fun editRequest(requestTO: UdemyRequestTO, requestId: String, email: String): UdemyRequestTO {
+        var request = findByIdEditableRequestByUser(requestId, email)
         request = requestTO.toUdemyRequest(request)
         try {
             return udemyRequestRepository.save(request).toUdemyRequestTO()
         } catch (ex: Exception) {
-            throw UdemyRequestUpdateFailedException(ex)
+            throw UdemyRequestUpdateFailedException(ex = ex)
         }
     }
 
-    override fun deleteRequest(requestId: String) {
+    override fun deleteRequest(requestId: String, email: String) {
+        val request = findByIdEditableRequestByUser(requestId, email)
+
         try {
-            udemyRequestRepository.deleteById(UUID.fromString(requestId))
-        } catch (ex: IllegalArgumentException) {
-            throw UdemyRequestDeleteFailedException()
+            udemyRequestRepository.delete(request)
+        } catch (ex : IllegalArgumentException) {
+            throw UdemyRequestDeleteFailedException(ex)
         }
     }
 
-    override fun changeActivation(requestId: String): UdemyRequestTO {
-        val request = getRequestById(requestId)
+    override fun changeActivation(requestId: String, email: String): UdemyRequestTO {
+        val request = findByIdEditableRequestByUser(requestId, email)
         try {
             request.isActive = !request.isActive
             return udemyRequestRepository.save(request).toUdemyRequestTO()
         } catch (ex: Exception) {
-            throw UdemyRequestUpdateFailedException(ex)
+            throw UdemyRequestUpdateFailedException(ex = ex)
         }
     }
 
     override fun archive(requestId: String) {
-        val request = getRequestById(requestId)
+        val request = findById(requestId)
         try {
             request.isArchived = true
             udemyRequestRepository.save(request).toUdemyRequestTO()
         } catch (ex: Exception) {
-            throw UdemyRequestUpdateFailedException(ex)
+            throw UdemyRequestUpdateFailedException(ex = ex)
         }
     }
 
-    override fun upVote(requestId: String) {
+    override fun upVote(requestId: String, email: String) {
         TODO("Not yet implemented")
     }
 
-    override fun downVote(requestId: String) {
+    override fun downVote(requestId: String, email: String) {
         TODO("Not yet implemented")
     }
 }

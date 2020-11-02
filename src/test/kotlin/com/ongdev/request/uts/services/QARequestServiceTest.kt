@@ -29,10 +29,17 @@ internal class QARequestServiceTest {
     private lateinit var mockQARequestTO: QARequestTO
     private lateinit var mockOptionalQARequest: Optional<QARequest>
     private lateinit var mockQARequest: QARequest
+    private lateinit var testEmail: String
 
     @BeforeEach
     internal fun setUp() {
-        mockQARequestTO = QARequestTO(id = null, title = "Test title", description = "Test description")
+        testEmail = "test@ongdev.com"
+        mockQARequestTO = QARequestTO(
+                id = null,
+                title = "Test title",
+                description = "Test description",
+                email = testEmail
+        )
 
         mockQARequest = mockQARequestTO.toQARequest()
         mockQARequest.id = UUID.randomUUID()
@@ -74,7 +81,7 @@ internal class QARequestServiceTest {
         `when`(qaRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalQARequest)
         `when`(qaRequestRepository.save(any(QARequest::class.java))).thenReturn(mockQARequest)
 
-        val result = qaRequestService.editRequest(mockQARequestTO, UUID.randomUUID().toString())
+        val result = qaRequestService.editRequest(mockQARequestTO, UUID.randomUUID().toString(), testEmail)
 
         assertThat(result.id).isEqualTo(mockQARequest.id.toString())
     }
@@ -83,7 +90,7 @@ internal class QARequestServiceTest {
     fun `Edit video request, should throw error when failed to find entity`() {
         `when`(qaRequestRepository.findById(any(UUID::class.java))).thenThrow(QARequestNotFoundException())
 
-        assertThrows<QARequestNotFoundException> { qaRequestService.editRequest(mockQARequestTO, UUID.randomUUID().toString()) }
+        assertThrows<QARequestNotFoundException> { qaRequestService.editRequest(mockQARequestTO, UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
@@ -91,24 +98,25 @@ internal class QARequestServiceTest {
         `when`(qaRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalQARequest)
         `when`(qaRequestRepository.save(any(QARequest::class.java))).thenThrow(IllegalArgumentException())
 
-        assertThrows<QARequestUpdateFailedException> { qaRequestService.editRequest(mockQARequestTO, UUID.randomUUID().toString()) }
+        assertThrows<QARequestUpdateFailedException> { qaRequestService.editRequest(mockQARequestTO, UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
     fun `Delete video request, should return true`() {
-        `when`(qaRequestRepository.deleteById(any(UUID::class.java))).then {
+        `when`(qaRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalQARequest)
+        `when`(qaRequestRepository.delete(any(QARequest::class.java))).then {
             // Do nothing
         }
 
-        qaRequestService.deleteRequest(UUID.randomUUID().toString())
-        assertDoesNotThrow { QARequestDeleteFailedException() }
+        assertDoesNotThrow { qaRequestService.deleteRequest(UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
     fun `Delete video request, should return false when cannot delete`() {
-        `when`(qaRequestRepository.deleteById(any(UUID::class.java))).thenThrow(IllegalArgumentException::class.java)
+        `when`(qaRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalQARequest)
+        `when`(qaRequestRepository.delete(any(QARequest::class.java))).thenThrow(IllegalArgumentException())
 
-        assertThrows<QARequestDeleteFailedException> { qaRequestService.deleteRequest("Test") }
+        assertThrows<QARequestDeleteFailedException> { qaRequestService.deleteRequest(UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
@@ -116,7 +124,7 @@ internal class QARequestServiceTest {
         `when`(qaRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalQARequest)
         `when`(qaRequestRepository.save(any(QARequest::class.java))).thenReturn(mockQARequest)
 
-        val result = qaRequestService.changeActivation(UUID.randomUUID().toString())
+        val result = qaRequestService.changeActivation(UUID.randomUUID().toString(), testEmail)
         assertThat(result.id).isEqualTo(mockQARequest.id.toString())
     }
 
@@ -124,7 +132,7 @@ internal class QARequestServiceTest {
     fun `Change activation, should throw not found exception`() {
         `when`(qaRequestRepository.findById(any(UUID::class.java))).thenThrow(QARequestNotFoundException())
 
-        assertThrows<QARequestNotFoundException> { qaRequestService.changeActivation(UUID.randomUUID().toString()) }
+        assertThrows<QARequestNotFoundException> { qaRequestService.changeActivation(UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
@@ -132,7 +140,7 @@ internal class QARequestServiceTest {
         `when`(qaRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalQARequest)
         `when`(qaRequestRepository.save(any(QARequest::class.java))).thenThrow(IllegalArgumentException())
 
-        assertThrows<QARequestUpdateFailedException> { qaRequestService.changeActivation(UUID.randomUUID().toString()) }
+        assertThrows<QARequestUpdateFailedException> { qaRequestService.changeActivation(UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test

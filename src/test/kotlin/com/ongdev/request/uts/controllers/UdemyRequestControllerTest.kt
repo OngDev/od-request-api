@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.data.domain.PageImpl
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -51,6 +52,7 @@ class UdemyRequestControllerTest(@Autowired val mockMvc: MockMvc) {
                 .andExpect(jsonPath("content.[0].url").value(mockUdemyRequestTO.url))
     }
 
+    @WithMockUser(username = "test@ongdev.com")
     @Test
     fun `Create video request, should return created video request`() {
         val mockUdemyRequestTO = UdemyRequestTO(

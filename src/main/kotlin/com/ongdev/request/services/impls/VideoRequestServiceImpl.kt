@@ -18,7 +18,15 @@ import java.util.*
 
 @Service
 class VideoRequestServiceImpl(private val videoRequestRepository: VideoRequestRepository) : VideoRequestService {
-    override fun getRequestById(requestId: String): VideoRequest = videoRequestRepository
+    override fun findByIdEditableRequestByUser(requestId: String, email: String): VideoRequest {
+        val request = findById(requestId)
+        if(request.email != email){
+            throw VideoRequestUpdateFailedException("This is not your request, dont try to trick me :D")
+        }
+        return request
+    }
+
+    override fun findById(requestId: String): VideoRequest = videoRequestRepository
             .findById(UUID.fromString(requestId))
             .orElseThrow { VideoRequestNotFoundException() }
 
@@ -35,49 +43,51 @@ class VideoRequestServiceImpl(private val videoRequestRepository: VideoRequestRe
         }
     }
 
-    override fun editRequest(requestTO: VideoRequestTO, requestId: String): VideoRequestTO {
-        var videoRequest = getRequestById(requestId)
+    override fun editRequest(requestTO: VideoRequestTO, requestId: String, email: String): VideoRequestTO {
+        var videoRequest = findByIdEditableRequestByUser(requestId, email)
         videoRequest = requestTO.toVideoRequest(videoRequest)
         try {
             return videoRequestRepository.save(videoRequest).toVideoRequestTO()
         } catch (ex: Exception) {
-            throw VideoRequestUpdateFailedException(ex)
+            throw VideoRequestUpdateFailedException(ex = ex)
         }
     }
 
-    override fun deleteRequest(requestId: String) {
+    override fun deleteRequest(requestId: String, email: String) {
+        val request = findByIdEditableRequestByUser(requestId, email)
+
         try {
-            videoRequestRepository.deleteById(UUID.fromString(requestId))
-        } catch (ex: IllegalArgumentException) {
-            throw VideoRequestDeleteFailedException()
+            videoRequestRepository.delete(request)
+        } catch (ex : IllegalArgumentException) {
+            throw VideoRequestDeleteFailedException(ex)
         }
     }
 
-    override fun changeActivation(requestId: String): VideoRequestTO {
-        val videoRequest = getRequestById(requestId)
+    override fun changeActivation(requestId: String, email: String): VideoRequestTO {
+        val videoRequest = findByIdEditableRequestByUser(requestId, email)
         try {
             videoRequest.isActive = !videoRequest.isActive
             return videoRequestRepository.save(videoRequest).toVideoRequestTO()
         } catch (ex: Exception) {
-            throw VideoRequestUpdateFailedException(ex)
+            throw VideoRequestUpdateFailedException(ex = ex)
         }
     }
 
     override fun archive(requestId: String) {
-        val videoRequest = getRequestById(requestId)
+        val videoRequest = findById(requestId)
         try {
             videoRequest.isArchived = true
             videoRequestRepository.save(videoRequest).toVideoRequestTO()
         } catch (ex: Exception) {
-            throw VideoRequestUpdateFailedException(ex)
+            throw VideoRequestUpdateFailedException(ex = ex)
         }
     }
 
-    override fun upVote(requestId: String) {
+    override fun upVote(requestId: String, email: String) {
         TODO("Not yet implemented")
     }
 
-    override fun downVote(requestId: String) {
+    override fun downVote(requestId: String, email: String) {
         TODO("Not yet implemented")
     }
 }

@@ -18,7 +18,15 @@ import java.util.*
 
 @Service
 class QARequestServiceImpl(private val qaRequestRepository: QARequestRepository) : QARequestService {
-    override fun getRequestById(requestId: String): QARequest = qaRequestRepository
+    override fun findByIdEditableRequestByUser(requestId: String, email: String): QARequest {
+        val request = findById(requestId)
+        if(request.email != email){
+            throw QARequestUpdateFailedException("This is not your request, dont try to trick me :D")
+        }
+        return request
+    }
+
+    override fun findById(requestId: String): QARequest = qaRequestRepository
             .findById(UUID.fromString(requestId))
             .orElseThrow { QARequestNotFoundException() }
 
@@ -35,49 +43,53 @@ class QARequestServiceImpl(private val qaRequestRepository: QARequestRepository)
         }
     }
 
-    override fun editRequest(requestTO: QARequestTO, requestId: String): QARequestTO {
-        var request = getRequestById(requestId)
+    override fun editRequest(requestTO: QARequestTO, requestId: String, email: String): QARequestTO {
+        var request = findByIdEditableRequestByUser(requestId, email)
+
         request = requestTO.toQARequest(request)
         try {
             return qaRequestRepository.save(request).toQARequestTO()
         } catch (ex: Exception) {
-            throw QARequestUpdateFailedException(ex)
+            throw QARequestUpdateFailedException(ex = ex)
         }
     }
 
-    override fun deleteRequest(requestId: String) {
+    override fun deleteRequest(requestId: String, email: String) {
+        val request = findByIdEditableRequestByUser(requestId, email)
+
         try {
-            qaRequestRepository.deleteById(UUID.fromString(requestId))
-        } catch (ex : IllegalArgumentException) {
-            throw QARequestDeleteFailedException()
+            qaRequestRepository.delete(request)
+        } catch (ex : Exception) {
+            throw QARequestDeleteFailedException(ex = ex)
         }
     }
 
-    override fun changeActivation(requestId: String): QARequestTO {
-        val request = qaRequestRepository.findById(UUID.fromString(requestId)).orElseThrow {QARequestNotFoundException()}
+    override fun changeActivation(requestId: String, email: String): QARequestTO {
+        val request = findByIdEditableRequestByUser(requestId, email)
+
         try {
             request.isActive = ! request.isActive
             return qaRequestRepository.save(request).toQARequestTO()
         } catch (ex: Exception) {
-            throw QARequestUpdateFailedException(ex)
+            throw QARequestUpdateFailedException(ex = ex)
         }
     }
 
     override fun archive(requestId: String) {
-        val request = qaRequestRepository.findById(UUID.fromString(requestId)).orElseThrow { QARequestNotFoundException()}
+        val request = findById(requestId)
         try {
             request.isArchived = true
             qaRequestRepository.save(request).toQARequestTO()
         } catch (ex: Exception) {
-            throw QARequestUpdateFailedException(ex)
+            throw QARequestUpdateFailedException(ex = ex)
         }
     }
 
-    override fun upVote(requestId: String) {
+    override fun upVote(requestId: String, email: String) {
         TODO("Not yet implemented")
     }
 
-    override fun downVote(requestId: String) {
+    override fun downVote(requestId: String, email: String) {
         TODO("Not yet implemented")
     }
 }

@@ -4,5 +4,6 @@ import com.ongdev.request.models.VideoRequest
 import com.ongdev.request.models.dtos.VideoRequestTO
 
 interface VideoRequestService : RequestService<VideoRequestTO> {
-    fun getRequestById(requestId: String) : VideoRequest
+    fun findByIdEditableRequestByUser(requestId: String, email: String) : VideoRequest
+    fun findById(requestId: String): VideoRequest
 }

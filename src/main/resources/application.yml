@@ -6,9 +6,9 @@ spring:
   banner:
     location: classpath:banner.txt
 server:
-  port: 3000
-  servlet:
-    context-path: /api
+  port: ${PORT}
+app:
+  authUrl: ${AUTH_URL}
 ---
 # dev H2 profile properties
 spring:
