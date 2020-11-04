@@ -11,12 +11,25 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
+import java.util.*
+import java.util.Collections.unmodifiableList
 
 @EnableWebSecurity
 @Configuration
 class SecurityConfiguration(
         val userService: UserService
 ) : WebSecurityConfigurerAdapter() {
+    companion object {
+        private val ALLOWED_ALL = unmodifiableList(listOf(CorsConfiguration.ALL))
+        private val ALLOWED_ORIGINS = ALLOWED_ALL
+        private val ALLOWED_METHODS = unmodifiableList(listOf(
+                HttpMethod.GET.name,
+                HttpMethod.HEAD.name,
+                HttpMethod.POST.name,
+                HttpMethod.PUT.name,
+                HttpMethod.DELETE.name))
+        private val ALLOWED_HEADERS = ALLOWED_ALL
+    }
 
     @Bean
     fun tokenAuthenticationFilter(): TokenAuthenticationFilter {
@@ -47,7 +60,13 @@ class SecurityConfiguration(
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
         val source = UrlBasedCorsConfigurationSource()
-        source.registerCorsConfiguration("/**", CorsConfiguration().applyPermitDefaultValues())
+        val corsConfiguration = CorsConfiguration()
+        corsConfiguration.allowedOrigins = ALLOWED_ORIGINS
+        corsConfiguration.allowedMethods = ALLOWED_METHODS
+        corsConfiguration.allowedHeaders = ALLOWED_HEADERS
+        source.registerCorsConfiguration(
+                "/**",
+                corsConfiguration)
         return source
     }
 }
