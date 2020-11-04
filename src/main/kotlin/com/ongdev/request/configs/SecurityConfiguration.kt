@@ -20,6 +20,7 @@ class SecurityConfiguration(
         val userService: UserService
 ) : WebSecurityConfigurerAdapter() {
     companion object {
+        // Consider moving those values to Env vars
         private val ALLOWED_ALL = unmodifiableList(listOf(CorsConfiguration.ALL))
         private val ALLOWED_ORIGINS = ALLOWED_ALL
         private val ALLOWED_METHODS = unmodifiableList(listOf(
@@ -29,6 +30,7 @@ class SecurityConfiguration(
                 HttpMethod.PUT.name,
                 HttpMethod.DELETE.name))
         private val ALLOWED_HEADERS = ALLOWED_ALL
+        private val MAX_AGE = 1800L
     }
 
     @Bean
@@ -64,6 +66,7 @@ class SecurityConfiguration(
         corsConfiguration.allowedOrigins = ALLOWED_ORIGINS
         corsConfiguration.allowedMethods = ALLOWED_METHODS
         corsConfiguration.allowedHeaders = ALLOWED_HEADERS
+        corsConfiguration.maxAge = MAX_AGE
         source.registerCorsConfiguration(
                 "/**",
                 corsConfiguration)
