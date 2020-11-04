@@ -1,11 +1,14 @@
 package com.ongdev.request.uts.controllers
 
 import com.nhaarman.mockitokotlin2.any
+import com.ongdev.request.configs.SecurityConfiguration
 import com.ongdev.request.controllers.UdemyRequestController
+import com.ongdev.request.models.auth.UserInfo
 import com.ongdev.request.models.dtos.qna.QARequestTO
 import com.ongdev.request.models.dtos.udemy.UdemyRequestCreationTO
 import com.ongdev.request.models.dtos.udemy.UdemyRequestTO
 import com.ongdev.request.services.UdemyRequestService
+import com.ongdev.request.services.UserService
 import com.ongdev.request.utils.JsonUtil.Companion.asJsonString
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -29,11 +32,14 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.*
 
 @AutoConfigureMockMvc
-@ContextConfiguration(classes = [UdemyRequestController::class, UdemyRequestService::class])
+@ContextConfiguration(classes = [UdemyRequestController::class, UdemyRequestService::class, SecurityConfiguration::class, UserService::class])
 @WebMvcTest
 class UdemyRequestControllerTest(@Autowired val mockMvc: MockMvc) {
     @MockBean
     private lateinit var udemyRequestService: UdemyRequestService
+
+    @MockBean
+    private lateinit var userService: UserService
 
     private val testEmail: String = "test@ongdev.com"
 
@@ -51,6 +57,15 @@ class UdemyRequestControllerTest(@Autowired val mockMvc: MockMvc) {
                 isArchived = false,
                 votes = listOf()
         )
+
+        Mockito.`when`(userService.getUserInfoFromToken(any()))
+                .thenReturn(
+                        UserInfo(
+                                UUID.randomUUID().toString(),
+                                testEmail,
+                                "Ong Dev",
+                                true,
+                                setOf("USER")))
     }
 
     @Test

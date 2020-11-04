@@ -5,10 +5,13 @@ import com.ongdev.request.services.QARequestService
 import com.ongdev.request.utils.JsonUtil.Companion.asJsonString
 import org.junit.jupiter.api.Test
 import com.nhaarman.mockitokotlin2.any
+import com.ongdev.request.configs.SecurityConfiguration
 import com.ongdev.request.controllers.QARequestController
+import com.ongdev.request.models.auth.UserInfo
 import com.ongdev.request.models.dtos.qna.QARequestCreationTO
 import com.ongdev.request.models.dtos.qna.QARequestUpdatingTO
 import com.ongdev.request.models.mappers.toQARequest
+import com.ongdev.request.services.UserService
 import org.junit.jupiter.api.BeforeEach
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito
@@ -18,6 +21,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.data.domain.PageImpl
 import org.springframework.http.MediaType
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -28,11 +32,14 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import java.util.*
 
 @AutoConfigureMockMvc
-@ContextConfiguration(classes = [QARequestController::class, QARequestService::class])
+@ContextConfiguration(classes = [QARequestController::class, QARequestService::class, SecurityConfiguration::class, UserService::class])
 @WebMvcTest
 class QARequestControllerTest(@Autowired val mockMvc: MockMvc) {
     @MockBean
     private lateinit var qaRequestService: QARequestService
+
+    @MockBean
+    private lateinit var userService: UserService
 
     private val testEmail: String = "test@ongdev.com"
     private lateinit var mockQARequestTO: QARequestTO
@@ -48,6 +55,15 @@ class QARequestControllerTest(@Autowired val mockMvc: MockMvc) {
                 isArchived = false,
                 votes = listOf()
         )
+
+        Mockito.`when`(userService.getUserInfoFromToken(any()))
+                .thenReturn(
+                        UserInfo(
+                                UUID.randomUUID().toString(),
+                                testEmail,
+                                "Ong Dev",
+                                true,
+                                setOf("USER")))
     }
 
     @Test
@@ -63,6 +79,7 @@ class QARequestControllerTest(@Autowired val mockMvc: MockMvc) {
                 .andExpect(jsonPath("content.[0].description").value(mockQARequestTO.description))
     }
 
+    @WithMockUser(username = "test@ongdev.com", roles = ["USER"])
     @Test
     fun `Create video request, should return created video request`() {
         Mockito.`when`(qaRequestService.createRequest(
