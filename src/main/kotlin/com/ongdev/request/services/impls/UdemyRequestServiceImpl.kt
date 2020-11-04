@@ -11,9 +11,7 @@ import com.ongdev.request.models.dtos.qna.QARequestUpdatingTO
 import com.ongdev.request.models.dtos.udemy.UdemyRequestCreationTO
 import com.ongdev.request.models.dtos.udemy.UdemyRequestTO
 import com.ongdev.request.models.dtos.udemy.UdemyRequestUpdatingTO
-import com.ongdev.request.models.mappers.toUdemyRequest
-import com.ongdev.request.models.mappers.toUdemyRequestTO
-import com.ongdev.request.models.mappers.toUdemyRequestTOPage
+import com.ongdev.request.models.mappers.*
 import com.ongdev.request.repositories.UdemyRequestRepository
 import com.ongdev.request.services.UdemyRequestService
 import org.springframework.data.domain.Page
@@ -42,7 +40,9 @@ class UdemyRequestServiceImpl(private val udemyRequestRepository: UdemyRequestRe
 
     override fun createRequest(requestTO: UdemyRequestCreationTO, email: String): UdemyRequestTO {
         try {
-            return udemyRequestRepository.save(requestTO.toUdemyRequest()).toUdemyRequestTO()
+            val udemyRequest = requestTO.toUdemyRequest()
+            udemyRequest.email = email
+            return udemyRequestRepository.save(udemyRequest).toUdemyRequestTO()
         } catch (ex: Exception) {
             throw UdemyRequestCreationException(ex)
         }

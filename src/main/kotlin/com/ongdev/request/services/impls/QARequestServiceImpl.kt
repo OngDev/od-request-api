@@ -9,9 +9,7 @@ import com.ongdev.request.models.Vote
 import com.ongdev.request.models.dtos.qna.QARequestCreationTO
 import com.ongdev.request.models.dtos.qna.QARequestTO
 import com.ongdev.request.models.dtos.qna.QARequestUpdatingTO
-import com.ongdev.request.models.mappers.toQARequest
-import com.ongdev.request.models.mappers.toQARequestTO
-import com.ongdev.request.models.mappers.toQARequestTOPage
+import com.ongdev.request.models.mappers.*
 import com.ongdev.request.repositories.QARequestRepository
 import com.ongdev.request.services.QARequestService
 import org.springframework.data.domain.Page
@@ -40,7 +38,9 @@ class QARequestServiceImpl(private val qaRequestRepository: QARequestRepository)
 
     override fun createRequest(requestTO: QARequestCreationTO, email: String): QARequestTO {
         try {
-            return qaRequestRepository.save(requestTO.toQARequest()).toQARequestTO()
+            val qaRequest = requestTO.toQARequest()
+            qaRequest.email = email
+            return qaRequestRepository.save(qaRequest).toQARequestTO()
         } catch (ex: Exception) {
             throw QARequestCreationException(ex)
         }

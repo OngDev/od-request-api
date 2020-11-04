@@ -40,7 +40,9 @@ class VideoRequestServiceImpl(private val videoRequestRepository: VideoRequestRe
 
     override fun createRequest(requestTO: VideoRequestCreationTO, email: String): VideoRequestTO {
         try {
-            return videoRequestRepository.save(requestTO.toVideoRequest()).toVideoRequestTO()
+            val videoRequest = requestTO.toVideoRequest()
+            videoRequest.email = email
+            return videoRequestRepository.save(videoRequest).toVideoRequestTO()
         } catch (ex: Exception) {
             throw VideoRequestCreationException(ex)
         }
