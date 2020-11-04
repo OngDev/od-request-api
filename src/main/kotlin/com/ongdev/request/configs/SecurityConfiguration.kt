@@ -30,7 +30,7 @@ class SecurityConfiguration(
                 HttpMethod.PUT.name,
                 HttpMethod.DELETE.name))
         private val ALLOWED_HEADERS = ALLOWED_ALL
-        private val MAX_AGE = 1800L
+        private const val MAX_AGE = 1800L
     }
 
     @Bean
