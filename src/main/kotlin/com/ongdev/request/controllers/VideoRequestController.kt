@@ -1,6 +1,8 @@
 package com.ongdev.request.controllers
 
-import com.ongdev.request.models.dtos.VideoRequestTO
+import com.ongdev.request.models.dtos.video.VideoRequestCreationTO
+import com.ongdev.request.models.dtos.video.VideoRequestTO
+import com.ongdev.request.models.dtos.video.VideoRequestUpdatingTO
 import com.ongdev.request.services.VideoRequestService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -27,18 +29,17 @@ class VideoRequestController(private val videoRequestService: VideoRequestServic
 
     @PostMapping
     fun createVideoRequest(
-            @RequestBody(required = true) videoRequestTO: VideoRequestTO,
+            @RequestBody(required = true) videoRequestCreationTO: VideoRequestCreationTO,
             principal: Principal) : ResponseEntity<VideoRequestTO> {
-        videoRequestTO.email = principal.name
-        return ResponseEntity(videoRequestService.createRequest(videoRequestTO), HttpStatus.OK)
+        return ResponseEntity(videoRequestService.createRequest(videoRequestCreationTO, principal.name), HttpStatus.OK)
     }
 
     @PutMapping("{id}")
     fun editVideoRequest(
             @PathVariable id: String,
-            @RequestBody(required = true) videoRequestTO: VideoRequestTO,
+            @RequestBody(required = true) videoRequestUpdatingTO: VideoRequestUpdatingTO,
             principal: Principal) : ResponseEntity<VideoRequestTO> {
-        return ResponseEntity(videoRequestService.editRequest(videoRequestTO, id, principal.name), HttpStatus.OK)
+        return ResponseEntity(videoRequestService.editRequest(videoRequestUpdatingTO, id, principal.name), HttpStatus.OK)
     }
 
     @DeleteMapping("{id}")
@@ -59,8 +60,25 @@ class VideoRequestController(private val videoRequestService: VideoRequestServic
 
     @GetMapping("{id}/archive")
     fun archiveVideoRequest(
-            @PathVariable id: String
+            @PathVariable id: String,
+            principal: Principal
     ) : ResponseEntity<Any> {
-        return ResponseEntity(videoRequestService.archive(id), HttpStatus.OK)
+        return ResponseEntity(videoRequestService.archive(id, principal.name), HttpStatus.OK)
+    }
+
+    @GetMapping("{id}/upvote")
+    fun upVote(
+            @PathVariable id: String,
+            principal: Principal
+    ) : ResponseEntity<Any> {
+        return ResponseEntity(videoRequestService.upVote(id, principal.name), HttpStatus.OK)
+    }
+
+    @GetMapping("{id}/downvote")
+    fun downVote(
+            @PathVariable id: String,
+            principal: Principal
+    ) : ResponseEntity<Any> {
+        return ResponseEntity(videoRequestService.downVote(id, principal.name), HttpStatus.OK)
     }
 }

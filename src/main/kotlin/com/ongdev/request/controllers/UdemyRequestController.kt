@@ -1,6 +1,8 @@
 package com.ongdev.request.controllers
 
-import com.ongdev.request.models.dtos.UdemyRequestTO
+import com.ongdev.request.models.dtos.udemy.UdemyRequestCreationTO
+import com.ongdev.request.models.dtos.udemy.UdemyRequestTO
+import com.ongdev.request.models.dtos.udemy.UdemyRequestUpdatingTO
 import com.ongdev.request.services.UdemyRequestService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -26,16 +28,18 @@ class UdemyRequestController(private val udemyRequestService: UdemyRequestServic
     }
 
     @PostMapping
-    fun createUdemyRequest(@RequestBody(required = true) udemyRequestTO: UdemyRequestTO) : ResponseEntity<UdemyRequestTO> {
-        return ResponseEntity(udemyRequestService.createRequest(udemyRequestTO), HttpStatus.OK)
+    fun createUdemyRequest(
+            @RequestBody(required = true) udemyRequestCreationTO: UdemyRequestCreationTO,
+            principal: Principal) : ResponseEntity<UdemyRequestTO> {
+        return ResponseEntity(udemyRequestService.createRequest(udemyRequestCreationTO, principal.name), HttpStatus.OK)
     }
 
     @PutMapping("{id}")
     fun editUdemyRequest(
             @PathVariable id: String,
-            @RequestBody(required = true) udemyRequestTO: UdemyRequestTO,
+            @RequestBody(required = true) udemyRequestUpdatingTO: UdemyRequestUpdatingTO,
             principal: Principal) : ResponseEntity<UdemyRequestTO> {
-        return ResponseEntity(udemyRequestService.editRequest(udemyRequestTO, id, principal.name), HttpStatus.OK)
+        return ResponseEntity(udemyRequestService.editRequest(udemyRequestUpdatingTO, id, principal.name), HttpStatus.OK)
     }
 
     @DeleteMapping("{id}")
@@ -56,8 +60,25 @@ class UdemyRequestController(private val udemyRequestService: UdemyRequestServic
 
     @GetMapping("{id}/archive")
     fun archiveUdemyRequest(
-            @PathVariable id: String
+            @PathVariable id: String,
+            principal: Principal
     ) : ResponseEntity<Any> {
-        return ResponseEntity(udemyRequestService.archive(id), HttpStatus.OK)
+        return ResponseEntity(udemyRequestService.archive(id, principal.name), HttpStatus.OK)
+    }
+
+    @GetMapping("{id}/upvote")
+    fun upVote(
+            @PathVariable id: String,
+            principal: Principal
+    ) : ResponseEntity<Any> {
+        return ResponseEntity(udemyRequestService.upVote(id, principal.name), HttpStatus.OK)
+    }
+
+    @GetMapping("{id}/downvote")
+    fun downVote(
+            @PathVariable id: String,
+            principal: Principal
+    ) : ResponseEntity<Any> {
+        return ResponseEntity(udemyRequestService.downVote(id, principal.name), HttpStatus.OK)
     }
 }

@@ -5,7 +5,9 @@ import com.ongdev.request.exceptions.udemy.UdemyRequestDeleteFailedException
 import com.ongdev.request.exceptions.udemy.UdemyRequestNotFoundException
 import com.ongdev.request.exceptions.udemy.UdemyRequestUpdateFailedException
 import com.ongdev.request.models.UdemyRequest
-import com.ongdev.request.models.dtos.UdemyRequestTO
+import com.ongdev.request.models.dtos.udemy.UdemyRequestCreationTO
+import com.ongdev.request.models.dtos.udemy.UdemyRequestTO
+import com.ongdev.request.models.dtos.udemy.UdemyRequestUpdatingTO
 import com.ongdev.request.models.mappers.toUdemyRequest
 import com.ongdev.request.repositories.UdemyRequestRepository
 import com.ongdev.request.services.UdemyRequestService
@@ -27,6 +29,8 @@ internal class UdemyRequestServiceTest {
     private val udemyRequestService: UdemyRequestService = UdemyRequestServiceImpl(udemyRequestRepository)
 
     private lateinit var mockUdemyRequestTO: UdemyRequestTO
+    private lateinit var mockUdemyRequestCreationTO: UdemyRequestCreationTO
+    private lateinit var mockUdemyRequestUpdatingTO: UdemyRequestUpdatingTO
     private lateinit var mockOptionalUdemyRequest: Optional<UdemyRequest>
     private lateinit var mockUdemyRequest: UdemyRequest
     private lateinit var testEmail: String
@@ -35,13 +39,20 @@ internal class UdemyRequestServiceTest {
     internal fun setUp() {
         testEmail = "test@ongdev.com"
         mockUdemyRequestTO = UdemyRequestTO(
-                id = null,
+                id = UUID.randomUUID().toString(),
                 title = "Test title",
                 description = "Test description",
                 url = "Test Url",
-                email = testEmail)
+                email = testEmail,
+                isActive = true,
+                isArchived = false,
+                votes = listOf()
+        )
 
-        mockUdemyRequest = mockUdemyRequestTO.toUdemyRequest()
+        mockUdemyRequestCreationTO = UdemyRequestCreationTO("Test title","Test description","Test Url")
+        mockUdemyRequestUpdatingTO = UdemyRequestUpdatingTO("Test title","Test description","Test Url")
+        mockUdemyRequest = mockUdemyRequestCreationTO.toUdemyRequest()
+        mockUdemyRequest.email = testEmail
         mockUdemyRequest.id = UUID.randomUUID()
         mockOptionalUdemyRequest = Optional.of(mockUdemyRequest)
     }
@@ -64,7 +75,7 @@ internal class UdemyRequestServiceTest {
     fun `Create video request, should return correct udemyRequestTO`() {
         `when`(udemyRequestRepository.save(any(UdemyRequest::class.java))).thenReturn(mockUdemyRequest)
 
-        val result = udemyRequestService.createRequest(mockUdemyRequestTO)
+        val result = udemyRequestService.createRequest(mockUdemyRequestCreationTO, testEmail)
 
         assertThat(result.id).isEqualTo(mockUdemyRequest.id.toString())
     }
@@ -73,7 +84,7 @@ internal class UdemyRequestServiceTest {
     fun `Create video request, should throw error when udemyRequestTo is null`() {
         `when`(udemyRequestRepository.save(any(UdemyRequest::class.java))).thenThrow(IllegalArgumentException())
 
-        assertThrows<UdemyRequestCreationException> { udemyRequestService.createRequest(mockUdemyRequestTO) }
+        assertThrows<UdemyRequestCreationException> { udemyRequestService.createRequest(mockUdemyRequestCreationTO, testEmail) }
     }
 
     @Test
@@ -81,7 +92,7 @@ internal class UdemyRequestServiceTest {
         `when`(udemyRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalUdemyRequest)
         `when`(udemyRequestRepository.save(any(UdemyRequest::class.java))).thenReturn(mockUdemyRequest)
 
-        val result = udemyRequestService.editRequest(mockUdemyRequestTO, UUID.randomUUID().toString(), testEmail)
+        val result = udemyRequestService.editRequest(mockUdemyRequestUpdatingTO, UUID.randomUUID().toString(), testEmail)
 
         assertThat(result.id).isEqualTo(mockUdemyRequest.id.toString())
     }
@@ -90,7 +101,7 @@ internal class UdemyRequestServiceTest {
     fun `Edit video request, should throw error when failed to find entity`() {
         `when`(udemyRequestRepository.findById(any(UUID::class.java))).thenThrow(UdemyRequestNotFoundException())
 
-        assertThrows<UdemyRequestNotFoundException> { udemyRequestService.editRequest(mockUdemyRequestTO, UUID.randomUUID().toString(), testEmail) }
+        assertThrows<UdemyRequestNotFoundException> { udemyRequestService.editRequest(mockUdemyRequestUpdatingTO, UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
@@ -98,7 +109,7 @@ internal class UdemyRequestServiceTest {
         `when`(udemyRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalUdemyRequest)
         `when`(udemyRequestRepository.save(any(UdemyRequest::class.java))).thenThrow(IllegalArgumentException())
 
-        assertThrows<UdemyRequestUpdateFailedException> { udemyRequestService.editRequest(mockUdemyRequestTO, UUID.randomUUID().toString(), testEmail) }
+        assertThrows<UdemyRequestUpdateFailedException> { udemyRequestService.editRequest(mockUdemyRequestUpdatingTO, UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
@@ -148,14 +159,14 @@ internal class UdemyRequestServiceTest {
         `when`(udemyRequestRepository.save(any(UdemyRequest::class.java))).thenReturn(mockUdemyRequest)
 
 
-        assertDoesNotThrow { udemyRequestService.archive(UUID.randomUUID().toString()) }
+        assertDoesNotThrow { udemyRequestService.archive(UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
     fun `Archive video request, should throw not found exception`() {
         `when`(udemyRequestRepository.findById(any(UUID::class.java))).thenThrow(UdemyRequestNotFoundException())
 
-        assertThrows<UdemyRequestNotFoundException> { udemyRequestService.archive(UUID.randomUUID().toString()) }
+        assertThrows<UdemyRequestNotFoundException> { udemyRequestService.archive(UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
@@ -163,6 +174,6 @@ internal class UdemyRequestServiceTest {
         `when`(udemyRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalUdemyRequest)
         `when`(udemyRequestRepository.save(any(UdemyRequest::class.java))).thenThrow(IllegalArgumentException())
 
-        assertThrows<UdemyRequestUpdateFailedException> { udemyRequestService.archive(UUID.randomUUID().toString()) }
+        assertThrows<UdemyRequestUpdateFailedException> { udemyRequestService.archive(UUID.randomUUID().toString(), testEmail) }
     }
 }

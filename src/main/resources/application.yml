@@ -7,6 +7,8 @@ spring:
     location: classpath:banner.txt
 server:
   port: ${PORT}
+  servlet:
+    context-path: "/request"
 app:
   authUrl: ${AUTH_URL}
 ---

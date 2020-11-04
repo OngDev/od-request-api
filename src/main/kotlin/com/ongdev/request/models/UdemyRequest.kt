@@ -6,5 +6,7 @@ import javax.persistence.Table
 @Entity
 @Table(name="udemy")
 class UdemyRequest(
+        title: String,
+        description: String,
         var url: String = ""
-) : BaseRequest()
+) : BaseRequest(title = title, description = description)

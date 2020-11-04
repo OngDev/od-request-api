@@ -1,6 +1,8 @@
 package com.ongdev.request.controllers
 
-import com.ongdev.request.models.dtos.QARequestTO
+import com.ongdev.request.models.dtos.qna.QARequestCreationTO
+import com.ongdev.request.models.dtos.qna.QARequestTO
+import com.ongdev.request.models.dtos.qna.QARequestUpdatingTO
 import com.ongdev.request.services.QARequestService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -26,16 +28,18 @@ class QARequestController(private val qaRequestService: QARequestService) {
     }
 
     @PostMapping
-    fun createQARequest(@RequestBody(required = true) qaRequestTO: QARequestTO) : ResponseEntity<QARequestTO> {
-        return ResponseEntity(qaRequestService.createRequest(qaRequestTO), HttpStatus.OK)
+    fun createQARequest(
+            @RequestBody(required = true) qaRequestCreationTO: QARequestCreationTO,
+            principal: Principal) : ResponseEntity<QARequestTO> {
+        return ResponseEntity(qaRequestService.createRequest(qaRequestCreationTO, principal.name), HttpStatus.OK)
     }
 
     @PutMapping("{id}")
     fun editQARequest(
             @PathVariable id: String,
-            @RequestBody(required = true) qaRequestTO: QARequestTO,
+            @RequestBody(required = true) qaRequestUpdatingTO: QARequestUpdatingTO,
             principal: Principal) : ResponseEntity<QARequestTO> {
-        return ResponseEntity(qaRequestService.editRequest(qaRequestTO, id, principal.name), HttpStatus.OK)
+        return ResponseEntity(qaRequestService.editRequest(qaRequestUpdatingTO, id, principal.name), HttpStatus.OK)
     }
 
     @DeleteMapping("{id}")
@@ -56,8 +60,25 @@ class QARequestController(private val qaRequestService: QARequestService) {
 
     @GetMapping("{id}/archive")
     fun archiveQARequest(
-            @PathVariable id: String
+            @PathVariable id: String,
+            principal: Principal
     ) : ResponseEntity<Any> {
-        return ResponseEntity(qaRequestService.archive(id), HttpStatus.OK)
+        return ResponseEntity(qaRequestService.archive(id, principal.name), HttpStatus.OK)
+    }
+
+    @GetMapping("{id}/upvote")
+    fun upVote(
+            @PathVariable id: String,
+            principal: Principal
+    ) : ResponseEntity<Any> {
+        return ResponseEntity(qaRequestService.upVote(id, principal.name), HttpStatus.OK)
+    }
+
+    @GetMapping("{id}/downvote")
+    fun downVote(
+            @PathVariable id: String,
+            principal: Principal
+    ) : ResponseEntity<Any> {
+        return ResponseEntity(qaRequestService.downVote(id, principal.name), HttpStatus.OK)
     }
 }

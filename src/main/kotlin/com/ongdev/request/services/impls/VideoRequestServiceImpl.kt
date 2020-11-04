@@ -5,7 +5,10 @@ import com.ongdev.request.exceptions.VideoRequestDeleteFailedException
 import com.ongdev.request.exceptions.VideoRequestNotFoundException
 import com.ongdev.request.exceptions.VideoRequestUpdateFailedException
 import com.ongdev.request.models.VideoRequest
-import com.ongdev.request.models.dtos.VideoRequestTO
+import com.ongdev.request.models.Vote
+import com.ongdev.request.models.dtos.video.VideoRequestCreationTO
+import com.ongdev.request.models.dtos.video.VideoRequestTO
+import com.ongdev.request.models.dtos.video.VideoRequestUpdatingTO
 import com.ongdev.request.models.mappers.toVideoRequest
 import com.ongdev.request.models.mappers.toVideoRequestTO
 import com.ongdev.request.models.mappers.toVideoRequestTOPage
@@ -20,7 +23,7 @@ import java.util.*
 class VideoRequestServiceImpl(private val videoRequestRepository: VideoRequestRepository) : VideoRequestService {
     override fun findByIdEditableRequestByUser(requestId: String, email: String): VideoRequest {
         val request = findById(requestId)
-        if(request.email != email){
+        if (request.email != email) {
             throw VideoRequestUpdateFailedException("This is not your request, dont try to trick me :D")
         }
         return request
@@ -35,7 +38,7 @@ class VideoRequestServiceImpl(private val videoRequestRepository: VideoRequestRe
         return videoRequestPage.toVideoRequestTOPage()
     }
 
-    override fun createRequest(requestTO: VideoRequestTO): VideoRequestTO {
+    override fun createRequest(requestTO: VideoRequestCreationTO, email: String): VideoRequestTO {
         try {
             return videoRequestRepository.save(requestTO.toVideoRequest()).toVideoRequestTO()
         } catch (ex: Exception) {
@@ -43,7 +46,7 @@ class VideoRequestServiceImpl(private val videoRequestRepository: VideoRequestRe
         }
     }
 
-    override fun editRequest(requestTO: VideoRequestTO, requestId: String, email: String): VideoRequestTO {
+    override fun editRequest(requestTO: VideoRequestUpdatingTO, requestId: String, email: String): VideoRequestTO {
         var videoRequest = findByIdEditableRequestByUser(requestId, email)
         videoRequest = requestTO.toVideoRequest(videoRequest)
         try {
@@ -58,7 +61,7 @@ class VideoRequestServiceImpl(private val videoRequestRepository: VideoRequestRe
 
         try {
             videoRequestRepository.delete(request)
-        } catch (ex : IllegalArgumentException) {
+        } catch (ex: IllegalArgumentException) {
             throw VideoRequestDeleteFailedException(ex)
         }
     }
@@ -73,7 +76,7 @@ class VideoRequestServiceImpl(private val videoRequestRepository: VideoRequestRe
         }
     }
 
-    override fun archive(requestId: String) {
+    override fun archive(requestId: String, email: String) {
         val videoRequest = findById(requestId)
         try {
             videoRequest.isArchived = true
@@ -84,10 +87,32 @@ class VideoRequestServiceImpl(private val videoRequestRepository: VideoRequestRe
     }
 
     override fun upVote(requestId: String, email: String) {
-        TODO("Not yet implemented")
+        val videoRequest = findById(requestId)
+        val existedVote = videoRequest.votes.find { vote -> vote.email == email }
+        if (existedVote != null ) {
+            if (!existedVote.isUp){
+                existedVote.isUp = true
+                videoRequestRepository.save(videoRequest)
+            }
+        } else {
+            val vote = Vote(null, email, true)
+            videoRequest.votes.add(vote)
+            videoRequestRepository.save(videoRequest)
+        }
     }
 
     override fun downVote(requestId: String, email: String) {
-        TODO("Not yet implemented")
+        val videoRequest = findById(requestId)
+        val existedVote = videoRequest.votes.find { vote -> vote.email == email }
+        if (existedVote != null ) {
+            if (existedVote.isUp){
+                existedVote.isUp = false
+                videoRequestRepository.save(videoRequest)
+            }
+        } else {
+            val vote = Vote(null, email, false)
+            videoRequest.votes.add(vote)
+            videoRequestRepository.save(videoRequest)
+        }
     }
 }

@@ -5,7 +5,10 @@ import com.ongdev.request.exceptions.qa.QARequestDeleteFailedException
 import com.ongdev.request.exceptions.qa.QARequestNotFoundException
 import com.ongdev.request.exceptions.qa.QARequestUpdateFailedException
 import com.ongdev.request.models.QARequest
-import com.ongdev.request.models.dtos.QARequestTO
+import com.ongdev.request.models.Vote
+import com.ongdev.request.models.dtos.qna.QARequestCreationTO
+import com.ongdev.request.models.dtos.qna.QARequestTO
+import com.ongdev.request.models.dtos.qna.QARequestUpdatingTO
 import com.ongdev.request.models.mappers.toQARequest
 import com.ongdev.request.models.mappers.toQARequestTO
 import com.ongdev.request.models.mappers.toQARequestTOPage
@@ -35,7 +38,7 @@ class QARequestServiceImpl(private val qaRequestRepository: QARequestRepository)
         return requestPage.toQARequestTOPage()
     }
 
-    override fun createRequest(requestTO: QARequestTO): QARequestTO {
+    override fun createRequest(requestTO: QARequestCreationTO, email: String): QARequestTO {
         try {
             return qaRequestRepository.save(requestTO.toQARequest()).toQARequestTO()
         } catch (ex: Exception) {
@@ -43,7 +46,7 @@ class QARequestServiceImpl(private val qaRequestRepository: QARequestRepository)
         }
     }
 
-    override fun editRequest(requestTO: QARequestTO, requestId: String, email: String): QARequestTO {
+    override fun editRequest(requestTO: QARequestUpdatingTO, requestId: String, email: String): QARequestTO {
         var request = findByIdEditableRequestByUser(requestId, email)
 
         request = requestTO.toQARequest(request)
@@ -75,7 +78,7 @@ class QARequestServiceImpl(private val qaRequestRepository: QARequestRepository)
         }
     }
 
-    override fun archive(requestId: String) {
+    override fun archive(requestId: String, email: String) {
         val request = findById(requestId)
         try {
             request.isArchived = true
@@ -86,10 +89,32 @@ class QARequestServiceImpl(private val qaRequestRepository: QARequestRepository)
     }
 
     override fun upVote(requestId: String, email: String) {
-        TODO("Not yet implemented")
+        val qaRequest = findById(requestId)
+        val existedVote = qaRequest.votes.find { vote -> vote.email == email }
+        if (existedVote != null ) {
+            if (!existedVote.isUp){
+                existedVote.isUp = true
+                qaRequestRepository.save(qaRequest)
+            }
+        } else {
+            val vote = Vote(null, email, true)
+            qaRequest.votes.add(vote)
+            qaRequestRepository.save(qaRequest)
+        }
     }
 
     override fun downVote(requestId: String, email: String) {
-        TODO("Not yet implemented")
+        val qaRequest = findById(requestId)
+        val existedVote = qaRequest.votes.find { vote -> vote.email == email }
+        if (existedVote != null ) {
+            if (!existedVote.isUp){
+                existedVote.isUp = false
+                qaRequestRepository.save(qaRequest)
+            }
+        } else {
+            val vote = Vote(null, email, false)
+            qaRequest.votes.add(vote)
+            qaRequestRepository.save(qaRequest)
+        }
     }
 }

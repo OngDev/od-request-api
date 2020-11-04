@@ -5,4 +5,4 @@ import javax.persistence.Table
 
 @Entity
 @Table(name="video")
-class VideoRequest : BaseRequest()
+class VideoRequest(title: String, description: String) : BaseRequest(title= title, description=description)

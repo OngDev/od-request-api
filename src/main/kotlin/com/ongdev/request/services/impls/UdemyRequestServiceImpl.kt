@@ -5,7 +5,12 @@ import com.ongdev.request.exceptions.udemy.UdemyRequestDeleteFailedException
 import com.ongdev.request.exceptions.udemy.UdemyRequestNotFoundException
 import com.ongdev.request.exceptions.udemy.UdemyRequestUpdateFailedException
 import com.ongdev.request.models.UdemyRequest
-import com.ongdev.request.models.dtos.UdemyRequestTO
+import com.ongdev.request.models.Vote
+import com.ongdev.request.models.dtos.qna.QARequestCreationTO
+import com.ongdev.request.models.dtos.qna.QARequestUpdatingTO
+import com.ongdev.request.models.dtos.udemy.UdemyRequestCreationTO
+import com.ongdev.request.models.dtos.udemy.UdemyRequestTO
+import com.ongdev.request.models.dtos.udemy.UdemyRequestUpdatingTO
 import com.ongdev.request.models.mappers.toUdemyRequest
 import com.ongdev.request.models.mappers.toUdemyRequestTO
 import com.ongdev.request.models.mappers.toUdemyRequestTOPage
@@ -35,7 +40,7 @@ class UdemyRequestServiceImpl(private val udemyRequestRepository: UdemyRequestRe
         return requestPage.toUdemyRequestTOPage()
     }
 
-    override fun createRequest(requestTO: UdemyRequestTO): UdemyRequestTO {
+    override fun createRequest(requestTO: UdemyRequestCreationTO, email: String): UdemyRequestTO {
         try {
             return udemyRequestRepository.save(requestTO.toUdemyRequest()).toUdemyRequestTO()
         } catch (ex: Exception) {
@@ -43,7 +48,7 @@ class UdemyRequestServiceImpl(private val udemyRequestRepository: UdemyRequestRe
         }
     }
 
-    override fun editRequest(requestTO: UdemyRequestTO, requestId: String, email: String): UdemyRequestTO {
+    override fun editRequest(requestTO: UdemyRequestUpdatingTO, requestId: String, email: String): UdemyRequestTO {
         var request = findByIdEditableRequestByUser(requestId, email)
         request = requestTO.toUdemyRequest(request)
         try {
@@ -73,7 +78,7 @@ class UdemyRequestServiceImpl(private val udemyRequestRepository: UdemyRequestRe
         }
     }
 
-    override fun archive(requestId: String) {
+    override fun archive(requestId: String, email: String) {
         val request = findById(requestId)
         try {
             request.isArchived = true
@@ -84,10 +89,32 @@ class UdemyRequestServiceImpl(private val udemyRequestRepository: UdemyRequestRe
     }
 
     override fun upVote(requestId: String, email: String) {
-        TODO("Not yet implemented")
+        val udemyRequest = findById(requestId)
+        val existedVote = udemyRequest.votes.find { vote -> vote.email == email }
+        if (existedVote != null ) {
+            if (!existedVote.isUp){
+                existedVote.isUp = true
+                udemyRequestRepository.save(udemyRequest)
+            }
+        } else {
+            val vote = Vote(null, email, true)
+            udemyRequest.votes.add(vote)
+            udemyRequestRepository.save(udemyRequest)
+        }
     }
 
     override fun downVote(requestId: String, email: String) {
-        TODO("Not yet implemented")
+        val udemyRequest = findById(requestId)
+        val existedVote = udemyRequest.votes.find { vote -> vote.email == email }
+        if (existedVote != null ) {
+            if (existedVote.isUp){
+                existedVote.isUp = false
+                udemyRequestRepository.save(udemyRequest)
+            }
+        } else {
+            val vote = Vote(null, email, false)
+            udemyRequest.votes.add(vote)
+            udemyRequestRepository.save(udemyRequest)
+        }
     }
 }

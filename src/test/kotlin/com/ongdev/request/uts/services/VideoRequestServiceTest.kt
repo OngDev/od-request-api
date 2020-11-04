@@ -5,7 +5,9 @@ import com.ongdev.request.exceptions.VideoRequestDeleteFailedException
 import com.ongdev.request.exceptions.VideoRequestNotFoundException
 import com.ongdev.request.exceptions.VideoRequestUpdateFailedException
 import com.ongdev.request.models.VideoRequest
-import com.ongdev.request.models.dtos.VideoRequestTO
+import com.ongdev.request.models.dtos.video.VideoRequestCreationTO
+import com.ongdev.request.models.dtos.video.VideoRequestTO
+import com.ongdev.request.models.dtos.video.VideoRequestUpdatingTO
 import com.ongdev.request.models.mappers.toVideoRequest
 import com.ongdev.request.repositories.VideoRequestRepository
 import com.ongdev.request.services.VideoRequestService
@@ -27,18 +29,29 @@ internal class VideoRequestServiceTest {
     private val videoRequestService: VideoRequestService = VideoRequestServiceImpl(videoRequestRepository)
 
     private lateinit var mockVideoRequestTO: VideoRequestTO
+    private lateinit var mockVideoRequestCreationTO: VideoRequestCreationTO
+    private lateinit var mockVideoRequestUpdatingTO: VideoRequestUpdatingTO
     private lateinit var mockOptionalVideoRequest: Optional<VideoRequest>
     private lateinit var mockVideoRequest: VideoRequest
-    private lateinit var testEmail: String
+    private val testEmail: String = "test@ongdev.com"
 
     @BeforeEach
     internal fun setUp() {
-        mockVideoRequestTO = VideoRequestTO(id = null, title = "Test title", description = "Test description", email = "test@ongdev.com")
+        mockVideoRequestTO = VideoRequestTO(
+                id = UUID.randomUUID().toString(),
+                title = "Test title",
+                description = "Test description",
+                email = testEmail,
+                isActive = true,
+                isArchived = false,
+                votes = listOf())
 
-        mockVideoRequest = mockVideoRequestTO.toVideoRequest()
+        mockVideoRequestCreationTO = VideoRequestCreationTO("Test title", "Test description")
+        mockVideoRequestUpdatingTO = VideoRequestUpdatingTO("Test title", "Test description")
+        mockVideoRequest = mockVideoRequestCreationTO.toVideoRequest()
+        mockVideoRequest.email = testEmail
         mockVideoRequest.id = UUID.randomUUID()
         mockOptionalVideoRequest = Optional.of(mockVideoRequest)
-        testEmail = "test@ongdev.com"
     }
 
     @Test
@@ -59,7 +72,7 @@ internal class VideoRequestServiceTest {
     fun `Create video request, should return correct videoRequestTO`() {
         `when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenReturn(mockVideoRequest)
 
-        val result = videoRequestService.createRequest(mockVideoRequestTO)
+        val result = videoRequestService.createRequest(mockVideoRequestCreationTO, testEmail)
 
         assertThat(result.id).isEqualTo(mockVideoRequest.id.toString())
     }
@@ -68,7 +81,7 @@ internal class VideoRequestServiceTest {
     fun `Create video request, should throw error when videoRequestTo is null`() {
         `when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenThrow(IllegalArgumentException())
 
-        assertThrows<VideoRequestCreationException> { videoRequestService.createRequest(mockVideoRequestTO) }
+        assertThrows<VideoRequestCreationException> { videoRequestService.createRequest(mockVideoRequestCreationTO, testEmail) }
     }
 
     @Test
@@ -76,7 +89,7 @@ internal class VideoRequestServiceTest {
         `when`(videoRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalVideoRequest)
         `when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenReturn(mockVideoRequest)
 
-        val result = videoRequestService.editRequest(mockVideoRequestTO, UUID.randomUUID().toString(), testEmail)
+        val result = videoRequestService.editRequest(mockVideoRequestUpdatingTO, UUID.randomUUID().toString(), testEmail)
 
         assertThat(result.id).isEqualTo(mockVideoRequest.id.toString())
     }
@@ -85,7 +98,7 @@ internal class VideoRequestServiceTest {
     fun `Edit video request, should throw error when failed to find entity`() {
         `when`(videoRequestRepository.findById(any(UUID::class.java))).thenThrow(VideoRequestNotFoundException())
 
-        assertThrows<VideoRequestNotFoundException> { videoRequestService.editRequest(mockVideoRequestTO, UUID.randomUUID().toString(), testEmail) }
+        assertThrows<VideoRequestNotFoundException> { videoRequestService.editRequest(mockVideoRequestUpdatingTO, UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
@@ -93,7 +106,7 @@ internal class VideoRequestServiceTest {
         `when`(videoRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalVideoRequest)
         `when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenThrow(IllegalArgumentException())
 
-        assertThrows<VideoRequestUpdateFailedException> { videoRequestService.editRequest(mockVideoRequestTO, UUID.randomUUID().toString(), testEmail) }
+        assertThrows<VideoRequestUpdateFailedException> { videoRequestService.editRequest(mockVideoRequestUpdatingTO, UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
@@ -144,14 +157,14 @@ internal class VideoRequestServiceTest {
         `when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenReturn(mockVideoRequest)
 
 
-        assertDoesNotThrow { videoRequestService.archive(UUID.randomUUID().toString()) }
+        assertDoesNotThrow { videoRequestService.archive(UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
     fun `Archive video request, should throw not found exception`() {
         `when`(videoRequestRepository.findById(any(UUID::class.java))).thenThrow(VideoRequestNotFoundException())
 
-        assertThrows<VideoRequestNotFoundException> { videoRequestService.archive(UUID.randomUUID().toString()) }
+        assertThrows<VideoRequestNotFoundException> { videoRequestService.archive(UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
@@ -159,6 +172,6 @@ internal class VideoRequestServiceTest {
         `when`(videoRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalVideoRequest)
         `when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenThrow(IllegalArgumentException())
 
-        assertThrows<VideoRequestUpdateFailedException> { videoRequestService.archive(UUID.randomUUID().toString()) }
+        assertThrows<VideoRequestUpdateFailedException> { videoRequestService.archive(UUID.randomUUID().toString(), testEmail) }
     }
 }

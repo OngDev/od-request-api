@@ -5,7 +5,9 @@ import com.ongdev.request.exceptions.qa.QARequestDeleteFailedException
 import com.ongdev.request.exceptions.qa.QARequestNotFoundException
 import com.ongdev.request.exceptions.qa.QARequestUpdateFailedException
 import com.ongdev.request.models.QARequest
-import com.ongdev.request.models.dtos.QARequestTO
+import com.ongdev.request.models.dtos.qna.QARequestCreationTO
+import com.ongdev.request.models.dtos.qna.QARequestTO
+import com.ongdev.request.models.dtos.qna.QARequestUpdatingTO
 import com.ongdev.request.models.mappers.toQARequest
 import com.ongdev.request.repositories.QARequestRepository
 import com.ongdev.request.services.QARequestService
@@ -27,21 +29,28 @@ internal class QARequestServiceTest {
     private val qaRequestService: QARequestService = QARequestServiceImpl(qaRequestRepository)
 
     private lateinit var mockQARequestTO: QARequestTO
+    private lateinit var mockQARequestCreationTO: QARequestCreationTO
+    private lateinit var mockQARequestUpdatingTO: QARequestUpdatingTO
     private lateinit var mockOptionalQARequest: Optional<QARequest>
     private lateinit var mockQARequest: QARequest
-    private lateinit var testEmail: String
+    private val testEmail: String = "test@ongdev.com"
 
     @BeforeEach
     internal fun setUp() {
-        testEmail = "test@ongdev.com"
         mockQARequestTO = QARequestTO(
-                id = null,
+                id = UUID.randomUUID().toString(),
                 title = "Test title",
                 description = "Test description",
-                email = testEmail
+                email = testEmail,
+                isActive = true,
+                isArchived = false,
+                votes = listOf()
         )
 
-        mockQARequest = mockQARequestTO.toQARequest()
+        mockQARequestCreationTO = QARequestCreationTO("Test title", "Test description")
+        mockQARequestUpdatingTO = QARequestUpdatingTO("Test title", "Test description")
+        mockQARequest = mockQARequestCreationTO.toQARequest()
+        mockQARequest.email = testEmail
         mockQARequest.id = UUID.randomUUID()
         mockOptionalQARequest = Optional.of(mockQARequest)
     }
@@ -64,7 +73,7 @@ internal class QARequestServiceTest {
     fun `Create video request, should return correct qaRequestTO`() {
         `when`(qaRequestRepository.save(any(QARequest::class.java))).thenReturn(mockQARequest)
 
-        val result = qaRequestService.createRequest(mockQARequestTO)
+        val result = qaRequestService.createRequest(mockQARequestCreationTO, testEmail)
 
         assertThat(result.id).isEqualTo(mockQARequest.id.toString())
     }
@@ -73,7 +82,7 @@ internal class QARequestServiceTest {
     fun `Create video request, should throw error when qaRequestTo is null`() {
         `when`(qaRequestRepository.save(any(QARequest::class.java))).thenThrow(IllegalArgumentException())
 
-        assertThrows<QARequestCreationException> { qaRequestService.createRequest(mockQARequestTO) }
+        assertThrows<QARequestCreationException> { qaRequestService.createRequest(mockQARequestCreationTO, testEmail) }
     }
 
     @Test
@@ -81,7 +90,7 @@ internal class QARequestServiceTest {
         `when`(qaRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalQARequest)
         `when`(qaRequestRepository.save(any(QARequest::class.java))).thenReturn(mockQARequest)
 
-        val result = qaRequestService.editRequest(mockQARequestTO, UUID.randomUUID().toString(), testEmail)
+        val result = qaRequestService.editRequest(mockQARequestUpdatingTO, UUID.randomUUID().toString(), testEmail)
 
         assertThat(result.id).isEqualTo(mockQARequest.id.toString())
     }
@@ -90,7 +99,7 @@ internal class QARequestServiceTest {
     fun `Edit video request, should throw error when failed to find entity`() {
         `when`(qaRequestRepository.findById(any(UUID::class.java))).thenThrow(QARequestNotFoundException())
 
-        assertThrows<QARequestNotFoundException> { qaRequestService.editRequest(mockQARequestTO, UUID.randomUUID().toString(), testEmail) }
+        assertThrows<QARequestNotFoundException> { qaRequestService.editRequest(mockQARequestUpdatingTO, UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
@@ -98,7 +107,7 @@ internal class QARequestServiceTest {
         `when`(qaRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalQARequest)
         `when`(qaRequestRepository.save(any(QARequest::class.java))).thenThrow(IllegalArgumentException())
 
-        assertThrows<QARequestUpdateFailedException> { qaRequestService.editRequest(mockQARequestTO, UUID.randomUUID().toString(), testEmail) }
+        assertThrows<QARequestUpdateFailedException> { qaRequestService.editRequest(mockQARequestUpdatingTO, UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
@@ -149,14 +158,14 @@ internal class QARequestServiceTest {
         `when`(qaRequestRepository.save(any(QARequest::class.java))).thenReturn(mockQARequest)
 
 
-        assertDoesNotThrow { qaRequestService.archive(UUID.randomUUID().toString()) }
+        assertDoesNotThrow { qaRequestService.archive(UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
     fun `Archive video request, should throw not found exception`() {
         `when`(qaRequestRepository.findById(any(UUID::class.java))).thenThrow(QARequestNotFoundException())
 
-        assertThrows<QARequestNotFoundException> { qaRequestService.archive(UUID.randomUUID().toString()) }
+        assertThrows<QARequestNotFoundException> { qaRequestService.archive(UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
@@ -164,6 +173,6 @@ internal class QARequestServiceTest {
         `when`(qaRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalQARequest)
         `when`(qaRequestRepository.save(any(QARequest::class.java))).thenThrow(IllegalArgumentException())
 
-        assertThrows<QARequestUpdateFailedException> { qaRequestService.archive(UUID.randomUUID().toString()) }
+        assertThrows<QARequestUpdateFailedException> { qaRequestService.archive(UUID.randomUUID().toString(), testEmail) }
     }
 }

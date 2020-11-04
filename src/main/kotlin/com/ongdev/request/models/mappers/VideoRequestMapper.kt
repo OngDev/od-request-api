@@ -1,24 +1,15 @@
 package com.ongdev.request.models.mappers
 
 import com.ongdev.request.models.VideoRequest
-import com.ongdev.request.models.dtos.VideoRequestTO
+import com.ongdev.request.models.dtos.video.VideoRequestCreationTO
+import com.ongdev.request.models.dtos.video.VideoRequestTO
+import com.ongdev.request.models.dtos.video.VideoRequestUpdatingTO
 import org.springframework.data.domain.Page
 import java.util.*
 
-fun VideoRequestTO.toVideoRequest() : VideoRequest {
-    val videoRequest = VideoRequest()
-    if(id != null) videoRequest.id = UUID.fromString(id)
-    videoRequest.title = title
-    videoRequest.description = description
-    videoRequest.isActive = isActive
-    videoRequest.isArchived = isArchived
-    videoRequest.email = email
-    videoRequest.votes = if (votes != null) (votes!!.map { vote -> vote.toVote()
-    }).toMutableList() else mutableListOf()
-    return videoRequest
-}
+fun VideoRequestCreationTO.toVideoRequest() : VideoRequest = VideoRequest(title, description)
 
-fun VideoRequestTO.toVideoRequest(videoRequest: VideoRequest) : VideoRequest{
+fun VideoRequestUpdatingTO.toVideoRequest(videoRequest: VideoRequest) : VideoRequest{
     videoRequest.title = title
     videoRequest.description = description
     return videoRequest

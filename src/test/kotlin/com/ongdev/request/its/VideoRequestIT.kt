@@ -1,6 +1,6 @@
 package com.ongdev.request.its
 
-import com.ongdev.request.models.dtos.VideoRequestTO
+import com.ongdev.request.models.dtos.video.VideoRequestTO
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
