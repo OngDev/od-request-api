@@ -36,6 +36,11 @@ class QARequestServiceImpl(private val qaRequestRepository: QARequestRepository)
         return requestPage.toQARequestTOPage()
     }
 
+    override fun getMyRequests(pageable: Pageable, email: String): Page<QARequestTO> {
+        val requestPage: Page<QARequest> = qaRequestRepository.findAllByEmail(email, pageable)
+        return requestPage.toQARequestTOPage()
+    }
+
     override fun createRequest(requestTO: QARequestCreationTO, email: String): QARequestTO {
         try {
             val qaRequest = requestTO.toQARequest()

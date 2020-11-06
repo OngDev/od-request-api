@@ -27,6 +27,18 @@ class VideoRequestController(private val videoRequestService: VideoRequestServic
         return ResponseEntity(videoRequestService.getRequests(pageable), HttpStatus.OK)
     }
 
+    @GetMapping("/mine")
+    fun getMyVideoRequests(
+            @PageableDefault(
+                    page = 0,
+                    size = 10,
+                    direction = Sort.Direction.DESC,
+                    sort = ["title"]) pageable: Pageable,
+            principal: Principal)
+            : ResponseEntity<Page<VideoRequestTO>>{
+        return ResponseEntity(videoRequestService.getMyRequests(pageable, principal.name), HttpStatus.OK)
+    }
+
     @PostMapping
     fun createVideoRequest(
             @RequestBody(required = true) videoRequestCreationTO: VideoRequestCreationTO,

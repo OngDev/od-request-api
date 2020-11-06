@@ -13,6 +13,7 @@ interface RequestService<T : RequestTO, U: CreationTO, V: UpdatingTO> {
     fun editRequest(requestTO: V, requestId: String, email: String): T
 
     fun getRequests(pageable: Pageable) : Page<T>
+    fun getMyRequests(pageable: Pageable, email: String): Page<T>
     fun deleteRequest(requestId: String, email: String)
     fun changeActivation(requestId: String, email: String): T
 

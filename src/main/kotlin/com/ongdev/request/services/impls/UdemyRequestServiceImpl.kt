@@ -38,6 +38,11 @@ class UdemyRequestServiceImpl(private val udemyRequestRepository: UdemyRequestRe
         return requestPage.toUdemyRequestTOPage()
     }
 
+    override fun getMyRequests(pageable: Pageable, email: String): Page<UdemyRequestTO> {
+        val requestPage: Page<UdemyRequest> = udemyRequestRepository.findAllByEmail(email, pageable)
+        return requestPage.toUdemyRequestTOPage()
+    }
+
     override fun createRequest(requestTO: UdemyRequestCreationTO, email: String): UdemyRequestTO {
         try {
             val udemyRequest = requestTO.toUdemyRequest()

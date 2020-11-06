@@ -58,7 +58,7 @@ internal class UdemyRequestServiceTest {
     }
 
     @Test
-    fun `Get video requests, should return pagination list`() {
+    fun `Get udemy requests, should return pagination list`() {
         val mockRequestPage = PageImpl<UdemyRequest>(listOf(mockUdemyRequest))
         `when`(udemyRequestRepository.findAll(any(Pageable::class.java))).thenReturn(mockRequestPage)
 
@@ -72,7 +72,21 @@ internal class UdemyRequestServiceTest {
     }
 
     @Test
-    fun `Create video request, should return correct udemyRequestTO`() {
+    fun `Get my udemy requests, should return pagination list`() {
+        val mockRequestPage = PageImpl<UdemyRequest>(listOf(mockUdemyRequest))
+        `when`(udemyRequestRepository.findAllByEmail(anyString(), any(Pageable::class.java))).thenReturn(mockRequestPage)
+
+        val udemyRequestTO = mockUdemyRequestTO
+        udemyRequestTO.id = mockUdemyRequest.id.toString()
+        val mockRequestTOPage = PageImpl<UdemyRequestTO>(listOf(udemyRequestTO))
+        val resultPage = udemyRequestService.getMyRequests(PageRequest.of(1, 1), testEmail)
+
+        assertThat(resultPage.size).isEqualTo(mockRequestTOPage.size)
+        assertThat(resultPage.get().findFirst().get().id).isEqualTo(mockRequestTOPage.get().findFirst().get().id)
+    }
+
+    @Test
+    fun `Create udemy request, should return correct udemyRequestTO`() {
         `when`(udemyRequestRepository.save(any(UdemyRequest::class.java))).thenReturn(mockUdemyRequest)
 
         val result = udemyRequestService.createRequest(mockUdemyRequestCreationTO, testEmail)
@@ -81,14 +95,14 @@ internal class UdemyRequestServiceTest {
     }
 
     @Test
-    fun `Create video request, should throw error when udemyRequestTo is null`() {
+    fun `Create udemy request, should throw error when udemyRequestTo is null`() {
         `when`(udemyRequestRepository.save(any(UdemyRequest::class.java))).thenThrow(IllegalArgumentException())
 
         assertThrows<UdemyRequestCreationException> { udemyRequestService.createRequest(mockUdemyRequestCreationTO, testEmail) }
     }
 
     @Test
-    fun `Edit video request, should return updated udemyRequestTo`() {
+    fun `Edit udemy request, should return updated udemyRequestTo`() {
         `when`(udemyRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalUdemyRequest)
         `when`(udemyRequestRepository.save(any(UdemyRequest::class.java))).thenReturn(mockUdemyRequest)
 
@@ -98,14 +112,14 @@ internal class UdemyRequestServiceTest {
     }
 
     @Test
-    fun `Edit video request, should throw error when failed to find entity`() {
+    fun `Edit udemy request, should throw error when failed to find entity`() {
         `when`(udemyRequestRepository.findById(any(UUID::class.java))).thenThrow(UdemyRequestNotFoundException())
 
         assertThrows<UdemyRequestNotFoundException> { udemyRequestService.editRequest(mockUdemyRequestUpdatingTO, UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
-    fun `Edit video request, should throw error when failed to save entity`() {
+    fun `Edit udemy request, should throw error when failed to save entity`() {
         `when`(udemyRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalUdemyRequest)
         `when`(udemyRequestRepository.save(any(UdemyRequest::class.java))).thenThrow(IllegalArgumentException())
 
@@ -113,7 +127,7 @@ internal class UdemyRequestServiceTest {
     }
 
     @Test
-    fun `Delete video request, should return true`() {
+    fun `Delete udemy request, should return true`() {
         `when`(udemyRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalUdemyRequest)
         `when`(udemyRequestRepository.delete(any(UdemyRequest::class.java))).then {
             // Do nothing
@@ -122,7 +136,7 @@ internal class UdemyRequestServiceTest {
     }
 
     @Test
-    fun `Delete video request, should return false when cannot delete`() {
+    fun `Delete udemy request, should return false when cannot delete`() {
         `when`(udemyRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalUdemyRequest)
         `when`(udemyRequestRepository.delete(any(UdemyRequest::class.java))).thenThrow(IllegalArgumentException())
 
@@ -154,7 +168,7 @@ internal class UdemyRequestServiceTest {
     }
 
     @Test
-    fun `Archive video request, should work without any exception`() {
+    fun `Archive udemy request, should work without any exception`() {
         `when`(udemyRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalUdemyRequest)
         `when`(udemyRequestRepository.save(any(UdemyRequest::class.java))).thenReturn(mockUdemyRequest)
 
@@ -163,14 +177,14 @@ internal class UdemyRequestServiceTest {
     }
 
     @Test
-    fun `Archive video request, should throw not found exception`() {
+    fun `Archive udemy request, should throw not found exception`() {
         `when`(udemyRequestRepository.findById(any(UUID::class.java))).thenThrow(UdemyRequestNotFoundException())
 
         assertThrows<UdemyRequestNotFoundException> { udemyRequestService.archive(UUID.randomUUID().toString(), testEmail) }
     }
 
     @Test
-    fun `Archive video request, should throw exception`() {
+    fun `Archive udemy request, should throw exception`() {
         `when`(udemyRequestRepository.findById(any(UUID::class.java))).thenReturn(mockOptionalUdemyRequest)
         `when`(udemyRequestRepository.save(any(UdemyRequest::class.java))).thenThrow(IllegalArgumentException())
 

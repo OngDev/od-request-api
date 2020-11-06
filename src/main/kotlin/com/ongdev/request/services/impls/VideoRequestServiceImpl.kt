@@ -38,6 +38,11 @@ class VideoRequestServiceImpl(private val videoRequestRepository: VideoRequestRe
         return videoRequestPage.toVideoRequestTOPage()
     }
 
+    override fun getMyRequests(pageable: Pageable, email: String): Page<VideoRequestTO> {
+        val videoRequestPage: Page<VideoRequest> = videoRequestRepository.findAllByEmail(email, pageable)
+        return videoRequestPage.toVideoRequestTOPage()
+    }
+
     override fun createRequest(requestTO: VideoRequestCreationTO, email: String): VideoRequestTO {
         try {
             val videoRequest = requestTO.toVideoRequest()

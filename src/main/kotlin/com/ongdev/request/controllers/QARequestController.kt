@@ -27,6 +27,18 @@ class QARequestController(private val qaRequestService: QARequestService) {
         return ResponseEntity(qaRequestService.getRequests(pageable), HttpStatus.OK)
     }
 
+    @GetMapping("/mine")
+    fun getMyQARequests(
+            @PageableDefault(
+                    page = 0,
+                    size = 10,
+                    direction = Sort.Direction.DESC,
+                    sort = ["title"]) pageable: Pageable,
+            principal: Principal)
+            : ResponseEntity<Page<QARequestTO>>{
+        return ResponseEntity(qaRequestService.getMyRequests(pageable, principal.name), HttpStatus.OK)
+    }
+
     @PostMapping
     fun createQARequest(
             @RequestBody(required = true) qaRequestCreationTO: QARequestCreationTO,

@@ -69,6 +69,20 @@ internal class VideoRequestServiceTest {
     }
 
     @Test
+    fun `Get my video requests, should return pagination list`() {
+        val mockRequestPage = PageImpl<VideoRequest>(listOf(mockVideoRequest))
+        `when`(videoRequestRepository.findAllByEmail(anyString(), any(Pageable::class.java))).thenReturn(mockRequestPage)
+
+        val videoRequestTO = mockVideoRequestTO
+        videoRequestTO.id = mockVideoRequest.id.toString()
+        val mockRequestTOPage = PageImpl<VideoRequestTO>(listOf(videoRequestTO))
+        val resultPage = videoRequestService.getMyRequests(PageRequest.of(1, 1), testEmail)
+
+        assertThat(resultPage.size).isEqualTo(mockRequestTOPage.size)
+        assertThat(resultPage.get().findFirst().get().id).isEqualTo(mockRequestTOPage.get().findFirst().get().id)
+    }
+
+    @Test
     fun `Create video request, should return correct videoRequestTO`() {
         `when`(videoRequestRepository.save(any(VideoRequest::class.java))).thenReturn(mockVideoRequest)
 
