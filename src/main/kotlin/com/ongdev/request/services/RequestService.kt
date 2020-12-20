@@ -17,7 +17,7 @@ interface RequestService<T : RequestTO, U: CreationTO, V: UpdatingTO> {
     fun deleteRequest(requestId: String, email: String)
     fun changeActivation(requestId: String, email: String): T
 
-    @PreAuthorize("hasAnyRole('ONGDEV')")
+    @PreAuthorize("hasAnyRole('ongdev')")
     fun archive(requestId: String, email: String)
     fun upVote(requestId: String, email: String)
     fun downVote(requestId: String, email: String)

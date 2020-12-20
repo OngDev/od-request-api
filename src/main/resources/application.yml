@@ -9,8 +9,11 @@ server:
   port: ${PORT}
   servlet:
     context-path: "/request"
-app:
-  authUrl: ${AUTH_URL}
+keycloak:
+  auth-server-url: ${AUTH_URL}
+  realm: ${KEYCLOAK_REALM}
+  resource: ${KEYCLOAK_CLIENT}
+  public-client: true
 ---
 # dev H2 profile properties
 spring:

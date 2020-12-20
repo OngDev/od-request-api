@@ -1,24 +1,25 @@
 package com.ongdev.request.configs
 
-import com.ongdev.request.services.UserService
+import org.keycloak.adapters.springsecurity.KeycloakConfiguration
+import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter
+import org.keycloak.adapters.springsecurity.management.HttpSessionManager
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper
+import org.springframework.security.core.session.SessionRegistryImpl
+import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
-import java.util.*
 import java.util.Collections.unmodifiableList
 
-@EnableWebSecurity
-@Configuration
-class SecurityConfiguration(
-        val userService: UserService
-) : WebSecurityConfigurerAdapter() {
+
+@KeycloakConfiguration
+class SecurityConfiguration() : KeycloakWebSecurityConfigurerAdapter() {
     companion object {
         // Consider moving those values to Env vars
         private val ALLOWED_ALL = unmodifiableList(listOf(CorsConfiguration.ALL))
@@ -33,9 +34,13 @@ class SecurityConfiguration(
         private const val MAX_AGE = 1800L
     }
 
-    @Bean
-    fun tokenAuthenticationFilter(): TokenAuthenticationFilter {
-        return TokenAuthenticationFilter(userService)
+    override fun configure(auth: AuthenticationManagerBuilder?) {
+        val simpleAuthorityMapper = SimpleAuthorityMapper()
+        simpleAuthorityMapper.setPrefix("ROLE_")
+
+        val keycloakAuthenticationProvider = keycloakAuthenticationProvider()
+        keycloakAuthenticationProvider.setGrantedAuthoritiesMapper(simpleAuthorityMapper)
+        auth?.authenticationProvider(keycloakAuthenticationProvider)
     }
 
     override fun configure(http: HttpSecurity?) {
@@ -56,7 +61,11 @@ class SecurityConfiguration(
                 ?.antMatchers("/swagger-resources/**")?.permitAll()
                 ?.antMatchers("/v3/api-docs/**")?.permitAll()
                 ?.anyRequest()?.authenticated()
-        http?.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
+    }
+
+    @Bean
+    override fun sessionAuthenticationStrategy(): SessionAuthenticationStrategy {
+        return RegisterSessionAuthenticationStrategy(SessionRegistryImpl())
     }
 
     @Bean
@@ -71,5 +80,11 @@ class SecurityConfiguration(
                 "/**",
                 corsConfiguration)
         return source
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(HttpSessionManager::class)
+    override fun httpSessionManager(): HttpSessionManager {
+        return HttpSessionManager()
     }
 }

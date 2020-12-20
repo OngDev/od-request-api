@@ -29,7 +29,8 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("org.springdoc:springdoc-openapi-ui:1.4.8")
+    compileOnly("org.springdoc:springdoc-openapi-ui:1.4.8")
+    implementation("org.keycloak:keycloak-spring-boot-starter:12.0.1")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("com.h2database:h2")
     runtimeOnly("org.postgresql:postgresql")
@@ -39,6 +40,12 @@ dependencies {
     }
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
+}
+
+dependencyManagement {
+    imports {
+        mavenBom("org.keycloak.bom:keycloak-adapter-bom:12.0.1")
+    }
 }
 
 tasks.withType<Test> {
