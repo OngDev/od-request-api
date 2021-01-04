@@ -1,0 +1,4 @@
+server:
+  port: 3333
+app:
+  authUrl: http://keycloak.ongdev.com/auth
