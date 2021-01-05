@@ -25,5 +25,5 @@ ENV DATABASE_USERNAME=$arg_database_username
 ENV DATABASE_PASSWORD=$arg_database_password
 ENV DATABASE_DDL_AUTO=$arg_ddl_auto
 
-COPY  --from=builder /builder/build/lib/request-0.0.1-SNAPSHOT.jar .
+COPY  --from=builder /builder/build/libs/request-0.0.1-SNAPSHOT.jar .
 CMD ["java", "-jar", "request-0.0.1-SNAPSHOT.jar"]
