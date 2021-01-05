@@ -3,6 +3,7 @@ package com.ongdev.request.configs
 import org.keycloak.adapters.springsecurity.KeycloakConfiguration
 import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter
 import org.keycloak.adapters.springsecurity.management.HttpSessionManager
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
 import org.springframework.http.HttpMethod
@@ -16,7 +17,6 @@ import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import java.util.Collections.unmodifiableList
-
 
 @KeycloakConfiguration
 class SecurityConfiguration() : KeycloakWebSecurityConfigurerAdapter() {
@@ -34,13 +34,14 @@ class SecurityConfiguration() : KeycloakWebSecurityConfigurerAdapter() {
         private const val MAX_AGE = 1800L
     }
 
-    override fun configure(auth: AuthenticationManagerBuilder?) {
+    @Autowired
+    fun configureGlobal(auth: AuthenticationManagerBuilder) {
         val simpleAuthorityMapper = SimpleAuthorityMapper()
         simpleAuthorityMapper.setPrefix("ROLE_")
 
         val keycloakAuthenticationProvider = keycloakAuthenticationProvider()
         keycloakAuthenticationProvider.setGrantedAuthoritiesMapper(simpleAuthorityMapper)
-        auth?.authenticationProvider(keycloakAuthenticationProvider)
+        auth.authenticationProvider(keycloakAuthenticationProvider)
     }
 
     override fun configure(http: HttpSecurity?) {

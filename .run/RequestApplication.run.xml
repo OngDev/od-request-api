@@ -1,0 +1,17 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="RequestApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="request.main" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.ongdev.request.RequestApplication" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <envs>
+      <env name="PORT" value="3333" />
+      <env name="ACTIVE_PROFILE" value="dev-h2" />
+      <env name="AUTH_URL" value="http://keycloak.ongdev.com/auth" />
+      <env name="KEYCLOAK_REALM" value="ongdeveco" />
+      <env name="KEYCLOAK_CLIENT" value="od-request-api-dev" />
+    </envs>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

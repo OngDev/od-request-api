@@ -54,6 +54,8 @@ spring:
   datasource:
     platform: postgres
     url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
   jpa:
     database: POSTGRESQL
     generate-ddl: true
