@@ -51,8 +51,6 @@ class SecurityConfiguration() : KeycloakWebSecurityConfigurerAdapter() {
                 ?.csrf()?.disable()
                 ?.formLogin()?.disable()
                 ?.httpBasic()?.disable()
-                ?.exceptionHandling()?.authenticationEntryPoint(RestAuthenticationEntryPoint())
-                ?.and()
                 ?.authorizeRequests()
                 ?.antMatchers(HttpMethod.GET, "/videos")?.permitAll()
                 ?.antMatchers(HttpMethod.GET, "/udemy")?.permitAll()
