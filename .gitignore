@@ -189,4 +189,8 @@ gradle-app.setting
 ### Gradle Patch ###
 **/build/
 
+**/keystore/
+
+**/.run/
+
 # End of https://www.toptal.com/developers/gitignore/api/kotlin,intellij+all,windows,macos,gradle
