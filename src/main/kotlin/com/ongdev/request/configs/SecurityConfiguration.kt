@@ -6,9 +6,12 @@ import org.keycloak.adapters.springsecurity.management.HttpSessionManager
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper
 import org.springframework.security.core.session.SessionRegistryImpl
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy
@@ -18,7 +21,9 @@ import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import java.util.Collections.unmodifiableList
 
-@KeycloakConfiguration
+@Configuration
+@EnableWebSecurity
+@EnableGlobalMethodSecurity(jsr250Enabled = true)
 class SecurityConfiguration() : KeycloakWebSecurityConfigurerAdapter() {
     companion object {
         // Consider moving those values to Env vars
@@ -37,7 +42,6 @@ class SecurityConfiguration() : KeycloakWebSecurityConfigurerAdapter() {
     @Autowired
     fun configureGlobal(auth: AuthenticationManagerBuilder) {
         val simpleAuthorityMapper = SimpleAuthorityMapper()
-        simpleAuthorityMapper.setPrefix("ROLE_")
 
         val keycloakAuthenticationProvider = keycloakAuthenticationProvider()
         keycloakAuthenticationProvider.setGrantedAuthoritiesMapper(simpleAuthorityMapper)
@@ -52,14 +56,8 @@ class SecurityConfiguration() : KeycloakWebSecurityConfigurerAdapter() {
                 ?.formLogin()?.disable()
                 ?.httpBasic()?.disable()
                 ?.authorizeRequests()
-                ?.antMatchers(HttpMethod.GET, "/videos")?.permitAll()
-                ?.antMatchers(HttpMethod.GET, "/udemy")?.permitAll()
-                ?.antMatchers(HttpMethod.GET, "/qna")?.permitAll()
-                ?.antMatchers("/actuator/**")?.permitAll()
-                ?.antMatchers("/swagger-ui.html", "/swagger-ui/**")?.permitAll()
-                ?.antMatchers("/swagger-resources/**")?.permitAll()
-                ?.antMatchers("/v3/api-docs/**")?.permitAll()
-                ?.anyRequest()?.authenticated()
+                ?.anyRequest()
+                ?.permitAll();
     }
 
     @Bean

@@ -6,6 +6,8 @@ spring:
   banner:
     location: classpath:banner.txt
 server:
+  ssl:
+    enabled: true
   port: ${PORT}
   servlet:
     context-path: "/request"
@@ -13,7 +15,13 @@ keycloak:
   auth-server-url: ${AUTH_URL}
   realm: ${KEYCLOAK_REALM}
   resource: ${KEYCLOAK_CLIENT}
-  public-client: true
+  credentials:
+    secret: ${KEYCLOAK_CLIENT_SECRET}
+  use-resource-role-mappings: true
+  bearer-only: true
+  principal-attribute: email
+  ssl-required: external
+  confidential-port: 0
 ---
 # dev H2 profile properties
 spring:
