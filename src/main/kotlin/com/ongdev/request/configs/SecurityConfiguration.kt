@@ -57,7 +57,7 @@ class SecurityConfiguration() : KeycloakWebSecurityConfigurerAdapter() {
                 ?.httpBasic()?.disable()
                 ?.authorizeRequests()
                 ?.anyRequest()
-                ?.permitAll();
+                ?.permitAll()
     }
 
     @Bean
