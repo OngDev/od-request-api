@@ -76,5 +76,8 @@ jobs:
           arg_database_password=${{secrets.DATABASE_PASSWORD}}
           arg_ddl_auto=${{secrets.DATABASE_DDL_AUTO}}
           arg_keycloak_client_secret=${{secrets.KEYCLOAK_CLIENT_SECRET}}
+          arg_key_store_url=${{secrets.KEY_STORE_URL}}
+          arg_key_store_password=${{secrets.KEY_STORE_PASSWORD}}
+          arg_key_store_alias=${{secrets.KEY_STORE_ALIAS}}
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}

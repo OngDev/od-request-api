@@ -8,6 +8,10 @@ spring:
 server:
   ssl:
     enabled: true
+    key-store:  ${KEY_STORE_URL}
+    key-store-password: ${KEY_STORE_PASSWORD}
+    key-store-type: PKCS12
+    key-alias: ${KEY_STORE_ALIAS}
   port: ${PORT}
   servlet:
     context-path: "/request"
