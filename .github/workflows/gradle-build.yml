@@ -25,13 +25,59 @@ jobs:
           --health-retries 5
     steps:
     - uses: actions/checkout@v2
-    - name: Set up JDK 14
-      uses: actions/setup-java@v1
+    - name: Docker Login
+      uses: docker/login-action@v1.8.0
       with:
-        java-version: 14
-        java-package: jdk
-        architecture: x64
-    - name: Grant execute permission for gradlew
-      run: chmod +x ./gradlew
-    - name: Build with Gradle
-      run: ./gradlew build
+          # Username used to log against the Docker registry
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          # Password or personal access token used to log against the Docker registry
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+    - name: Docker Setup QEMU
+      uses: docker/setup-qemu-action@v1.0.1
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v1.6.0
+      with:
+        registry: ghcr.io
+        username: ${{ secrets.REPO_OWNER }}
+        password: ${{ secrets.CR_PAT }}
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1.0.4
+      id: buildx
+
+    - name: Cache Docker Image Layers
+      uses: actions/cache@v2
+      with:
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}
+        restore-keys: |
+                ${{ runner.os }}-buildx-
+
+    - name: Build and push Docker images
+      id: docker_build
+      uses: docker/build-push-action@v2.2.1
+      with:
+        platforms: linux/amd64,linux/arm64
+        builder: ${{ steps.buildx.outputs.name }}
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: ${{ secrets.DOCKER_HUB_USERNAME }}/od-request-api:0.0.1, ${{ secrets.DOCKER_HUB_USERNAME }}/od-request-api:latest
+        build-args: |
+          arg_active_profile=${{secrets.OD_REQUEST_API_PROFILE}}
+          arg_auth_url=${{secrets.KEYCLOAK_URL}}
+          arg_keycloak_realm=${{secrets.REALM}}
+          arg_keycloak_client=${{secrets.REQUEST_API_CLIENT_ID}}
+          arg_port=${{secrets.PORT}}
+          arg_database_url=${{secrets.DATABASE_URL}}
+          arg_database_username=${{secrets.DATABASE_USERNAME}}
+          arg_database_password=${{secrets.DATABASE_PASSWORD}}
+          arg_ddl_auto=${{secrets.DATABASE_DDL_AUTO}}
+          arg_keycloak_client_secret=${{secrets.KEYCLOAK_CLIENT_SECRET}}
+          arg_key_store_url=${{secrets.KEY_STORE_URL}}
+          arg_key_store_password=${{secrets.KEY_STORE_PASSWORD}}
+          arg_key_store_alias=${{secrets.KEY_STORE_ALIAS}}
+    - name: Image digest
+      run: echo ${{ steps.docker_build.outputs.digest }}

@@ -6,11 +6,26 @@ spring:
   banner:
     location: classpath:banner.txt
 server:
+  ssl:
+    enabled: true
+    key-store:  ${KEY_STORE_URL}
+    key-store-password: ${KEY_STORE_PASSWORD}
+    key-store-type: PKCS12
+    key-alias: ${KEY_STORE_ALIAS}
   port: ${PORT}
   servlet:
     context-path: "/request"
-app:
-  authUrl: ${AUTH_URL}
+keycloak:
+  auth-server-url: ${AUTH_URL}
+  realm: ${KEYCLOAK_REALM}
+  resource: ${KEYCLOAK_CLIENT}
+  credentials:
+    secret: ${KEYCLOAK_CLIENT_SECRET}
+  use-resource-role-mappings: true
+  bearer-only: true
+  principal-attribute: email
+  ssl-required: external
+  confidential-port: 0
 ---
 # dev H2 profile properties
 spring:
@@ -51,6 +66,8 @@ spring:
   datasource:
     platform: postgres
     url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
   jpa:
     database: POSTGRESQL
     generate-ddl: true
