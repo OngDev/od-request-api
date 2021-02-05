@@ -9,20 +9,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
     # Service containers to run with `container-job`
-    services:
-      # Label used to access the service container
-      postgres:
-        # Docker Hub image
-        image: postgres
-        # Provide the password for postgres
-        env:
-          POSTGRES_PASSWORD: postgres
-        # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+#     services:
+#       # Label used to access the service container
+#       postgres:
+#         # Docker Hub image
+#         image: postgres
+#         # Provide the password for postgres
+#         env:
+#           POSTGRES_PASSWORD: postgres
+#         # Set health checks to wait until postgres has started
+#         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
     - uses: actions/checkout@v2
     - name: Docker Login
@@ -52,8 +48,7 @@ jobs:
       with:
         path: /tmp/.buildx-cache
         key: ${{ runner.os }}-buildx-${{ github.sha }}
-        restore-keys: |
-                ${{ runner.os }}-buildx-
+        restore-keys: ${{ runner.os }}-buildx-
 
     - name: Build and push Docker images
       id: docker_build
@@ -65,19 +60,5 @@ jobs:
         file: ./Dockerfile
         push: true
         tags: ${{ secrets.DOCKER_HUB_USERNAME }}/od-request-api:0.0.1, ${{ secrets.DOCKER_HUB_USERNAME }}/od-request-api:latest
-        build-args: |
-          arg_active_profile=${{secrets.OD_REQUEST_API_PROFILE}}
-          arg_auth_url=${{secrets.KEYCLOAK_URL}}
-          arg_keycloak_realm=${{secrets.REALM}}
-          arg_keycloak_client=${{secrets.REQUEST_API_CLIENT_ID}}
-          arg_port=${{secrets.PORT}}
-          arg_database_url=${{secrets.DATABASE_URL}}
-          arg_database_username=${{secrets.DATABASE_USERNAME}}
-          arg_database_password=${{secrets.DATABASE_PASSWORD}}
-          arg_ddl_auto=${{secrets.DATABASE_DDL_AUTO}}
-          arg_keycloak_client_secret=${{secrets.KEYCLOAK_CLIENT_SECRET}}
-          arg_key_store_url=${{secrets.KEY_STORE_URL}}
-          arg_key_store_password=${{secrets.KEY_STORE_PASSWORD}}
-          arg_key_store_alias=${{secrets.KEY_STORE_ALIAS}}
     - name: Image digest
       run: echo ${{ steps.docker_build.outputs.digest }}
