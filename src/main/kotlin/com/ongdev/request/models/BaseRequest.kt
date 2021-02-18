@@ -14,6 +14,7 @@ abstract class BaseRequest(
         var id: UUID? = null,
         @Column(nullable = false)
         var title: String = "",
+        @Lob
         @Column(nullable = false)
         var description: String = "",
         var createdDate: Date? = null,
