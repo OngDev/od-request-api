@@ -6,12 +6,12 @@ import com.ongdev.request.exceptions.udemy.UdemyRequestNotFoundException
 import com.ongdev.request.exceptions.udemy.UdemyRequestUpdateFailedException
 import com.ongdev.request.models.UdemyRequest
 import com.ongdev.request.models.Vote
-import com.ongdev.request.models.dtos.qna.QARequestCreationTO
-import com.ongdev.request.models.dtos.qna.QARequestUpdatingTO
 import com.ongdev.request.models.dtos.udemy.UdemyRequestCreationTO
 import com.ongdev.request.models.dtos.udemy.UdemyRequestTO
 import com.ongdev.request.models.dtos.udemy.UdemyRequestUpdatingTO
-import com.ongdev.request.models.mappers.*
+import com.ongdev.request.models.mappers.toUdemyRequest
+import com.ongdev.request.models.mappers.toUdemyRequestTO
+import com.ongdev.request.models.mappers.toUdemyRequestTOPage
 import com.ongdev.request.repositories.UdemyRequestRepository
 import com.ongdev.request.services.UdemyRequestService
 import org.springframework.data.domain.Page
@@ -93,33 +93,35 @@ class UdemyRequestServiceImpl(private val udemyRequestRepository: UdemyRequestRe
         }
     }
 
-    override fun upVote(requestId: String, email: String) {
+    override fun upVote(requestId: String, email: String) : UdemyRequestTO {
         val udemyRequest = findById(requestId)
         val existedVote = udemyRequest.votes.find { vote -> vote.email == email }
         if (existedVote != null ) {
             if (!existedVote.isUp){
                 existedVote.isUp = true
-                udemyRequestRepository.save(udemyRequest)
+                return udemyRequestRepository.save(udemyRequest).toUdemyRequestTO()
             }
         } else {
             val vote = Vote(null, email, true)
             udemyRequest.votes.add(vote)
-            udemyRequestRepository.save(udemyRequest)
+            return udemyRequestRepository.save(udemyRequest).toUdemyRequestTO()
         }
+        return udemyRequest.toUdemyRequestTO()
     }
 
-    override fun downVote(requestId: String, email: String) {
+    override fun downVote(requestId: String, email: String) : UdemyRequestTO{
         val udemyRequest = findById(requestId)
         val existedVote = udemyRequest.votes.find { vote -> vote.email == email }
         if (existedVote != null ) {
             if (existedVote.isUp){
                 existedVote.isUp = false
-                udemyRequestRepository.save(udemyRequest)
+                return udemyRequestRepository.save(udemyRequest).toUdemyRequestTO()
             }
         } else {
             val vote = Vote(null, email, false)
             udemyRequest.votes.add(vote)
-            udemyRequestRepository.save(udemyRequest)
+            return udemyRequestRepository.save(udemyRequest).toUdemyRequestTO()
         }
+        return udemyRequest.toUdemyRequestTO()
     }
 }

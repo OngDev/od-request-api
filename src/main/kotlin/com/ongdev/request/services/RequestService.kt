@@ -19,6 +19,6 @@ interface RequestService<T : RequestTO, U: CreationTO, V: UpdatingTO> {
 
     @PreAuthorize("hasAnyRole('ongdev')")
     fun archive(requestId: String, email: String)
-    fun upVote(requestId: String, email: String)
-    fun downVote(requestId: String, email: String)
+    fun upVote(requestId: String, email: String): T
+    fun downVote(requestId: String, email: String): T
 }

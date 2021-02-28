@@ -9,7 +9,9 @@ import com.ongdev.request.models.Vote
 import com.ongdev.request.models.dtos.qna.QARequestCreationTO
 import com.ongdev.request.models.dtos.qna.QARequestTO
 import com.ongdev.request.models.dtos.qna.QARequestUpdatingTO
-import com.ongdev.request.models.mappers.*
+import com.ongdev.request.models.mappers.toQARequest
+import com.ongdev.request.models.mappers.toQARequestTO
+import com.ongdev.request.models.mappers.toQARequestTOPage
 import com.ongdev.request.repositories.QARequestRepository
 import com.ongdev.request.services.QARequestService
 import org.springframework.data.domain.Page
@@ -93,33 +95,35 @@ class QARequestServiceImpl(private val qaRequestRepository: QARequestRepository)
         }
     }
 
-    override fun upVote(requestId: String, email: String) {
+    override fun upVote(requestId: String, email: String): QARequestTO {
         val qaRequest = findById(requestId)
         val existedVote = qaRequest.votes.find { vote -> vote.email == email }
         if (existedVote != null ) {
             if (!existedVote.isUp){
                 existedVote.isUp = true
-                qaRequestRepository.save(qaRequest)
+                return qaRequestRepository.save(qaRequest).toQARequestTO()
             }
         } else {
             val vote = Vote(null, email, true)
             qaRequest.votes.add(vote)
             qaRequestRepository.save(qaRequest)
         }
+        return qaRequest.toQARequestTO()
     }
 
-    override fun downVote(requestId: String, email: String) {
+    override fun downVote(requestId: String, email: String): QARequestTO {
         val qaRequest = findById(requestId)
         val existedVote = qaRequest.votes.find { vote -> vote.email == email }
         if (existedVote != null ) {
             if (!existedVote.isUp){
                 existedVote.isUp = false
-                qaRequestRepository.save(qaRequest)
+                return qaRequestRepository.save(qaRequest).toQARequestTO()
             }
         } else {
             val vote = Vote(null, email, false)
             qaRequest.votes.add(vote)
-            qaRequestRepository.save(qaRequest)
+            return qaRequestRepository.save(qaRequest).toQARequestTO()
         }
+        return qaRequest.toQARequestTO()
     }
 }

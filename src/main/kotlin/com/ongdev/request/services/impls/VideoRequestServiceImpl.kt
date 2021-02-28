@@ -93,33 +93,35 @@ class VideoRequestServiceImpl(private val videoRequestRepository: VideoRequestRe
         }
     }
 
-    override fun upVote(requestId: String, email: String) {
+    override fun upVote(requestId: String, email: String): VideoRequestTO {
         val videoRequest = findById(requestId)
         val existedVote = videoRequest.votes.find { vote -> vote.email == email }
         if (existedVote != null ) {
             if (!existedVote.isUp){
                 existedVote.isUp = true
-                videoRequestRepository.save(videoRequest)
+                return videoRequestRepository.save(videoRequest).toVideoRequestTO()
             }
         } else {
             val vote = Vote(null, email, true)
             videoRequest.votes.add(vote)
-            videoRequestRepository.save(videoRequest)
+            return videoRequestRepository.save(videoRequest).toVideoRequestTO()
         }
+        return videoRequest.toVideoRequestTO()
     }
 
-    override fun downVote(requestId: String, email: String) {
+    override fun downVote(requestId: String, email: String): VideoRequestTO {
         val videoRequest = findById(requestId)
         val existedVote = videoRequest.votes.find { vote -> vote.email == email }
         if (existedVote != null ) {
             if (existedVote.isUp){
                 existedVote.isUp = false
-                videoRequestRepository.save(videoRequest)
+                return videoRequestRepository.save(videoRequest).toVideoRequestTO()
             }
         } else {
             val vote = Vote(null, email, false)
             videoRequest.votes.add(vote)
-            videoRequestRepository.save(videoRequest)
+            return videoRequestRepository.save(videoRequest).toVideoRequestTO()
         }
+        return videoRequest.toVideoRequestTO()
     }
 }
