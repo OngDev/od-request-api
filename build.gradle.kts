@@ -44,7 +44,7 @@ dependencies {
 
 dependencyManagement {
     imports {
-        mavenBom("org.keycloak.bom:keycloak-adapter-bom:12.0.1")
+        mavenBom("org.keycloak.bom:keycloak-adapter-bom:12.0.4")
     }
 }
 
