@@ -34,6 +34,7 @@ class SecurityConfiguration() : KeycloakWebSecurityConfigurerAdapter() {
                 HttpMethod.HEAD.name,
                 HttpMethod.POST.name,
                 HttpMethod.PUT.name,
+                HttpMethod.OPTIONS.name,
                 HttpMethod.DELETE.name))
         private val ALLOWED_HEADERS = ALLOWED_ALL
         private const val MAX_AGE = 1800L
