@@ -16,7 +16,7 @@ server:
   servlet:
     context-path: "/request"
 keycloak:
-  cors: true
+  enable-cors: true
   auth-server-url: ${AUTH_URL}
   realm: ${KEYCLOAK_REALM}
   resource: ${KEYCLOAK_CLIENT}
