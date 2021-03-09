@@ -16,7 +16,10 @@ server:
   servlet:
     context-path: "/request"
 keycloak:
-  enable-cors: true
+  cors: true
+  cors-max-age: 0
+  cors-allowed-methods: POST, PUT, DELETE, GET, OPTIONS
+  cors-allowed-headers: X-Requested-With, Content-Type, Authorization, Origin, Accept, Access-Control-Request-Method, Access-Control-Request-Headers  
   auth-server-url: ${AUTH_URL}
   realm: ${KEYCLOAK_REALM}
   resource: ${KEYCLOAK_CLIENT}
