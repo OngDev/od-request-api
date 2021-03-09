@@ -1,11 +1,13 @@
 package com.ongdev.request.configs
 
-import org.keycloak.adapters.springsecurity.KeycloakConfiguration
+import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver
+import org.keycloak.adapters.springsecurity.KeycloakSecurityComponents
 import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter
 import org.keycloak.adapters.springsecurity.management.HttpSessionManager
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
@@ -23,7 +25,8 @@ import java.util.Collections.unmodifiableList
 
 @Configuration
 @EnableWebSecurity
-@EnableGlobalMethodSecurity(jsr250Enabled = true)
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+@ComponentScan(basePackageClasses = [KeycloakSecurityComponents::class])
 class SecurityConfiguration() : KeycloakWebSecurityConfigurerAdapter() {
     companion object {
         // Consider moving those values to Env vars
@@ -85,4 +88,8 @@ class SecurityConfiguration() : KeycloakWebSecurityConfigurerAdapter() {
     override fun httpSessionManager(): HttpSessionManager {
         return HttpSessionManager()
     }
+
+    @Bean
+    fun keycloakSpringBootConfigResolver()
+            : KeycloakSpringBootConfigResolver = KeycloakSpringBootConfigResolver()
 }

@@ -42,12 +42,6 @@ dependencies {
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
 }
 
-dependencyManagement {
-    imports {
-        mavenBom("org.keycloak.bom:keycloak-adapter-bom:12.0.4")
-    }
-}
-
 tasks.withType<Test> {
     useJUnitPlatform()
 }
