@@ -1,4 +1,4 @@
-FROM gradle:6.6.1-jdk14 as builder
+FROM gradle:6.6.1-jdk14-hotspot as builder
 USER root
 WORKDIR /builder
 ADD . /builder
