@@ -30,6 +30,14 @@ keycloak:
   principal-attribute: email
   ssl-required: external
   confidential-port: 0
+  issuer: ${AUTH_URL}/realms/ongdeveco
+  authorization_endpoint: ${AUTH_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/auth"
+  token_endpoint: ${AUTH_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token"
+  introspection_endpoint: ${AUTH_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/token/introspect"
+  userinfo_endpoint: ${AUTH_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/userinfo"
+  end_session_endpoint: ${AUTH_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/logout"
+  jwks_uri: ${AUTH_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/certs"
+  check_session_iframe: ${AUTH_URL}/realms/${KEYCLOAK_REALM}/protocol/openid-connect/login-status-iframe.html"
 ---
 # dev H2 profile properties
 spring:
