@@ -1,4 +1,4 @@
-FROM gradle:6.6.1-jdk11-alpine as builder
+FROM gradle:6.6.1-jdk11 as builder
 USER root
 WORKDIR /builder
 ADD . /builder
