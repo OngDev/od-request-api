@@ -1,6 +1,7 @@
 package com.ongdev.request.configs
 
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver
+import org.keycloak.adapters.springsecurity.KeycloakConfiguration
 import org.keycloak.adapters.springsecurity.KeycloakSecurityComponents
 import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter
 import org.keycloak.adapters.springsecurity.management.HttpSessionManager
@@ -27,6 +28,7 @@ import java.util.Collections.unmodifiableList
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @ComponentScan(basePackageClasses = [KeycloakSecurityComponents::class])
+@KeycloakConfiguration
 class SecurityConfiguration() : KeycloakWebSecurityConfigurerAdapter() {
     companion object {
         // Consider moving those values to Env vars
