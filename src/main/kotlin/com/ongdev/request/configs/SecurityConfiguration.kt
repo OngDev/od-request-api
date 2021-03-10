@@ -23,6 +23,14 @@ import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 import java.util.Collections.unmodifiableList
+import org.keycloak.adapters.springboot.KeycloakSpringBootProperties
+
+import org.keycloak.adapters.KeycloakConfigResolver
+
+import org.springframework.context.annotation.Primary
+
+
+
 
 @Configuration
 @EnableWebSecurity
@@ -92,6 +100,8 @@ class SecurityConfiguration() : KeycloakWebSecurityConfigurerAdapter() {
     }
 
     @Bean
-    fun keycloakSpringBootConfigResolver()
-            : KeycloakSpringBootConfigResolver = KeycloakSpringBootConfigResolver()
+    @Primary
+    fun keycloakConfigResolver(properties: KeycloakSpringBootProperties?): KeycloakConfigResolver? {
+        return CustomKeycloakSpringBootConfigResolver(properties)
+    }
 }
