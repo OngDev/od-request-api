@@ -4,7 +4,7 @@ WORKDIR /builder
 ADD . /builder
 RUN gradle build --stacktrace
 
-FROM adoptopenjdk/openjdk14:jre-14.0.2_12-alpine
+FROM openjdk:14-jdk-alpine
 WORKDIR /app
 EXPOSE 9999
 COPY  --from=builder /builder/build/libs/request-0.0.1-SNAPSHOT.jar .
