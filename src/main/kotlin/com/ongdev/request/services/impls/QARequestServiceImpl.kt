@@ -14,6 +14,9 @@ import com.ongdev.request.models.mappers.toQARequestTO
 import com.ongdev.request.models.mappers.toQARequestTOPage
 import com.ongdev.request.repositories.QARequestRepository
 import com.ongdev.request.services.QARequestService
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
+import org.springframework.cache.annotation.Caching
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -33,16 +36,22 @@ class QARequestServiceImpl(private val qaRequestRepository: QARequestRepository)
             .findById(UUID.fromString(requestId))
             .orElseThrow { QARequestNotFoundException() }
 
+    @Cacheable("qna")
     override fun getRequests(pageable: Pageable): Page<QARequestTO> {
         val requestPage: Page<QARequest> = qaRequestRepository.findAll(pageable)
         return requestPage.toQARequestTOPage()
     }
 
+    @Cacheable("my-qna")
     override fun getMyRequests(pageable: Pageable, email: String): Page<QARequestTO> {
         val requestPage: Page<QARequest> = qaRequestRepository.findAllByEmail(email, pageable)
         return requestPage.toQARequestTOPage()
     }
 
+    @Caching(evict= [
+        CacheEvict("qna", allEntries = true),
+        CacheEvict("my-qna", allEntries = true)
+    ])
     override fun createRequest(requestTO: QARequestCreationTO, email: String): QARequestTO {
         try {
             val qaRequest = requestTO.toQARequest()
@@ -53,6 +62,10 @@ class QARequestServiceImpl(private val qaRequestRepository: QARequestRepository)
         }
     }
 
+    @Caching(evict= [
+        CacheEvict("qna", allEntries = true),
+        CacheEvict("my-qna", allEntries = true)
+    ])
     override fun editRequest(requestTO: QARequestUpdatingTO, requestId: String, email: String): QARequestTO {
         var request = findByIdEditableRequestByUser(requestId, email)
 
@@ -64,6 +77,10 @@ class QARequestServiceImpl(private val qaRequestRepository: QARequestRepository)
         }
     }
 
+    @Caching(evict= [
+        CacheEvict("qna", allEntries = true),
+        CacheEvict("my-qna", allEntries = true)
+    ])
     override fun deleteRequest(requestId: String, email: String) {
         val request = findByIdEditableRequestByUser(requestId, email)
 
@@ -74,6 +91,10 @@ class QARequestServiceImpl(private val qaRequestRepository: QARequestRepository)
         }
     }
 
+    @Caching(evict= [
+        CacheEvict("qna", allEntries = true),
+        CacheEvict("my-qna", allEntries = true)
+    ])
     override fun changeActivation(requestId: String, email: String): QARequestTO {
         val request = findByIdEditableRequestByUser(requestId, email)
 
@@ -85,6 +106,10 @@ class QARequestServiceImpl(private val qaRequestRepository: QARequestRepository)
         }
     }
 
+    @Caching(evict= [
+        CacheEvict("qna", allEntries = true),
+        CacheEvict("my-qna", allEntries = true)
+    ])
     override fun archive(requestId: String, email: String) {
         val request = findById(requestId)
         try {
@@ -95,6 +120,10 @@ class QARequestServiceImpl(private val qaRequestRepository: QARequestRepository)
         }
     }
 
+    @Caching(evict= [
+        CacheEvict("qna", allEntries = true),
+        CacheEvict("my-qna", allEntries = true)
+    ])
     override fun upVote(requestId: String, email: String): QARequestTO {
         val qaRequest = findById(requestId)
         val existedVote = qaRequest.votes.find { vote -> vote.email == email }
@@ -111,6 +140,10 @@ class QARequestServiceImpl(private val qaRequestRepository: QARequestRepository)
         return qaRequest.toQARequestTO()
     }
 
+    @Caching(evict= [
+        CacheEvict("qna", allEntries = true),
+        CacheEvict("my-qna", allEntries = true)
+    ])
     override fun downVote(requestId: String, email: String): QARequestTO {
         val qaRequest = findById(requestId)
         val existedVote = qaRequest.votes.find { vote -> vote.email == email }

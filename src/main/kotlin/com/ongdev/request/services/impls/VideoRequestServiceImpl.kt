@@ -14,6 +14,9 @@ import com.ongdev.request.models.mappers.toVideoRequestTO
 import com.ongdev.request.models.mappers.toVideoRequestTOPage
 import com.ongdev.request.repositories.VideoRequestRepository
 import com.ongdev.request.services.VideoRequestService
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
+import org.springframework.cache.annotation.Caching
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -33,16 +36,22 @@ class VideoRequestServiceImpl(private val videoRequestRepository: VideoRequestRe
             .findById(UUID.fromString(requestId))
             .orElseThrow { VideoRequestNotFoundException() }
 
+    @Cacheable("videos")
     override fun getRequests(pageable: Pageable): Page<VideoRequestTO> {
         val videoRequestPage: Page<VideoRequest> = videoRequestRepository.findAll(pageable)
         return videoRequestPage.toVideoRequestTOPage()
     }
 
+    @Cacheable("my-videos")
     override fun getMyRequests(pageable: Pageable, email: String): Page<VideoRequestTO> {
         val videoRequestPage: Page<VideoRequest> = videoRequestRepository.findAllByEmail(email, pageable)
         return videoRequestPage.toVideoRequestTOPage()
     }
 
+    @Caching(evict= [
+        CacheEvict("videos", allEntries = true),
+        CacheEvict("my-videos", allEntries = true)
+    ])
     override fun createRequest(requestTO: VideoRequestCreationTO, email: String): VideoRequestTO {
         try {
             val videoRequest = requestTO.toVideoRequest()
@@ -53,6 +62,10 @@ class VideoRequestServiceImpl(private val videoRequestRepository: VideoRequestRe
         }
     }
 
+    @Caching(evict= [
+        CacheEvict("videos", allEntries = true),
+        CacheEvict("my-videos", allEntries = true)
+    ])
     override fun editRequest(requestTO: VideoRequestUpdatingTO, requestId: String, email: String): VideoRequestTO {
         var videoRequest = findByIdEditableRequestByUser(requestId, email)
         videoRequest = requestTO.toVideoRequest(videoRequest)
@@ -63,6 +76,10 @@ class VideoRequestServiceImpl(private val videoRequestRepository: VideoRequestRe
         }
     }
 
+    @Caching(evict= [
+        CacheEvict("videos", allEntries = true),
+        CacheEvict("my-videos", allEntries = true)
+    ])
     override fun deleteRequest(requestId: String, email: String) {
         val request = findByIdEditableRequestByUser(requestId, email)
 
@@ -73,6 +90,10 @@ class VideoRequestServiceImpl(private val videoRequestRepository: VideoRequestRe
         }
     }
 
+    @Caching(evict= [
+        CacheEvict("videos", allEntries = true),
+        CacheEvict("my-videos", allEntries = true)
+    ])
     override fun changeActivation(requestId: String, email: String): VideoRequestTO {
         val videoRequest = findByIdEditableRequestByUser(requestId, email)
         try {
@@ -83,6 +104,10 @@ class VideoRequestServiceImpl(private val videoRequestRepository: VideoRequestRe
         }
     }
 
+    @Caching(evict= [
+        CacheEvict("videos", allEntries = true),
+        CacheEvict("my-videos", allEntries = true)
+    ])
     override fun archive(requestId: String, email: String) {
         val videoRequest = findById(requestId)
         try {
@@ -93,6 +118,10 @@ class VideoRequestServiceImpl(private val videoRequestRepository: VideoRequestRe
         }
     }
 
+    @Caching(evict= [
+        CacheEvict("videos", allEntries = true),
+        CacheEvict("my-videos", allEntries = true)
+    ])
     override fun upVote(requestId: String, email: String): VideoRequestTO {
         val videoRequest = findById(requestId)
         val existedVote = videoRequest.votes.find { vote -> vote.email == email }
@@ -109,6 +138,10 @@ class VideoRequestServiceImpl(private val videoRequestRepository: VideoRequestRe
         return videoRequest.toVideoRequestTO()
     }
 
+    @Caching(evict= [
+        CacheEvict("videos", allEntries = true),
+        CacheEvict("my-videos", allEntries = true)
+    ])
     override fun downVote(requestId: String, email: String): VideoRequestTO {
         val videoRequest = findById(requestId)
         val existedVote = videoRequest.votes.find { vote -> vote.email == email }

@@ -14,6 +14,9 @@ import com.ongdev.request.models.mappers.toUdemyRequestTO
 import com.ongdev.request.models.mappers.toUdemyRequestTOPage
 import com.ongdev.request.repositories.UdemyRequestRepository
 import com.ongdev.request.services.UdemyRequestService
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
+import org.springframework.cache.annotation.Caching
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -33,16 +36,22 @@ class UdemyRequestServiceImpl(private val udemyRequestRepository: UdemyRequestRe
             .findById(UUID.fromString(requestId))
             .orElseThrow { UdemyRequestNotFoundException() }
 
+    @Cacheable("udemy")
     override fun getRequests(pageable: Pageable): Page<UdemyRequestTO> {
         val requestPage: Page<UdemyRequest> = udemyRequestRepository.findAll(pageable)
         return requestPage.toUdemyRequestTOPage()
     }
 
+    @Cacheable("my-udemy")
     override fun getMyRequests(pageable: Pageable, email: String): Page<UdemyRequestTO> {
         val requestPage: Page<UdemyRequest> = udemyRequestRepository.findAllByEmail(email, pageable)
         return requestPage.toUdemyRequestTOPage()
     }
 
+    @Caching(evict= [
+        CacheEvict("udemy", allEntries = true),
+        CacheEvict("my-udemy", allEntries = true)
+    ])
     override fun createRequest(requestTO: UdemyRequestCreationTO, email: String): UdemyRequestTO {
         try {
             val udemyRequest = requestTO.toUdemyRequest()
@@ -53,6 +62,10 @@ class UdemyRequestServiceImpl(private val udemyRequestRepository: UdemyRequestRe
         }
     }
 
+    @Caching(evict= [
+        CacheEvict("udemy", allEntries = true),
+        CacheEvict("my-udemy", allEntries = true)
+    ])
     override fun editRequest(requestTO: UdemyRequestUpdatingTO, requestId: String, email: String): UdemyRequestTO {
         var request = findByIdEditableRequestByUser(requestId, email)
         request = requestTO.toUdemyRequest(request)
@@ -63,6 +76,10 @@ class UdemyRequestServiceImpl(private val udemyRequestRepository: UdemyRequestRe
         }
     }
 
+    @Caching(evict= [
+        CacheEvict("udemy", allEntries = true),
+        CacheEvict("my-udemy", allEntries = true)
+    ])
     override fun deleteRequest(requestId: String, email: String) {
         val request = findByIdEditableRequestByUser(requestId, email)
 
@@ -73,6 +90,10 @@ class UdemyRequestServiceImpl(private val udemyRequestRepository: UdemyRequestRe
         }
     }
 
+    @Caching(evict= [
+        CacheEvict("udemy", allEntries = true),
+        CacheEvict("my-udemy", allEntries = true)
+    ])
     override fun changeActivation(requestId: String, email: String): UdemyRequestTO {
         val request = findByIdEditableRequestByUser(requestId, email)
         try {
@@ -83,6 +104,10 @@ class UdemyRequestServiceImpl(private val udemyRequestRepository: UdemyRequestRe
         }
     }
 
+    @Caching(evict= [
+        CacheEvict("udemy", allEntries = true),
+        CacheEvict("my-udemy", allEntries = true)
+    ])
     override fun archive(requestId: String, email: String) {
         val request = findById(requestId)
         try {
@@ -93,6 +118,10 @@ class UdemyRequestServiceImpl(private val udemyRequestRepository: UdemyRequestRe
         }
     }
 
+    @Caching(evict= [
+        CacheEvict("udemy", allEntries = true),
+        CacheEvict("my-udemy", allEntries = true)
+    ])
     override fun upVote(requestId: String, email: String) : UdemyRequestTO {
         val udemyRequest = findById(requestId)
         val existedVote = udemyRequest.votes.find { vote -> vote.email == email }
@@ -109,6 +138,10 @@ class UdemyRequestServiceImpl(private val udemyRequestRepository: UdemyRequestRe
         return udemyRequest.toUdemyRequestTO()
     }
 
+    @Caching(evict= [
+        CacheEvict("udemy", allEntries = true),
+        CacheEvict("my-udemy", allEntries = true)
+    ])
     override fun downVote(requestId: String, email: String) : UdemyRequestTO{
         val udemyRequest = findById(requestId)
         val existedVote = udemyRequest.votes.find { vote -> vote.email == email }
